@@ -15,13 +15,13 @@ Received: from public-relay.example.net (public-relay.example.net
 Received: from internal-bot (internal-bot [192.168.1.50]) by
  public-relay.example.net with ESMTPS id XXX; Tue, 10 Jun 2026 09:13:55 +0000
 MIME-Version: 1.0
-Content-Type: multipart/mixed; boundary="===============2998118082582999281=="
+Content-Type: multipart/mixed; boundary="===============1416941690148009969=="
 
---===============2998118082582999281==
+--===============1416941690148009969==
 Content-Type: multipart/alternative;
- boundary="===============8346604071687787945=="
+ boundary="===============3834355474451097004=="
 
---===============8346604071687787945==
+--===============3834355474451097004==
 Content-Type: text/plain; charset="utf-8"
 Content-Transfer-Encoding: 7bit
 
@@ -34,7 +34,7 @@ or visit https://paypa1-secure-login.zip/account
 Regards,
 PayPal Security
 
---===============8346604071687787945==
+--===============3834355474451097004==
 Content-Type: text/html; charset="utf-8"
 Content-Transfer-Encoding: quoted-printable
 MIME-Version: 1.0
@@ -43,9 +43,9 @@ MIME-Version: 1.0
 ify-now">here</a> to verify or <a href=3D"https://paypa1-secure-login.zip/acc=
 ount">log in</a>.</p></body></html>
 
---===============8346604071687787945==--
+--===============3834355474451097004==--
 
---===============2998118082582999281==
+--===============1416941690148009969==
 Content-Type: text/html
 Content-Transfer-Encoding: base64
 Content-Disposition: attachment; filename="invoice.html"
@@ -53,4 +53,4 @@ MIME-Version: 1.0
 
 PGh0bWw+ZmFrZSBjcmVkZW50aWFsIGhhcnZlc3RlciBmb3JtIHdvdWxkIGdvIGhlcmU8L2h0bWw+
 
---===============2998118082582999281==--
+--===============1416941690148009969==--
