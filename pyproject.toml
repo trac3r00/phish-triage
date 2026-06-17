@@ -1,0 +1,43 @@
+[build-system]
+requires = ["setuptools>=68", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "phish-triage"
+version = "0.1.0"
+description = "Phishing email triage toolkit: parse .eml, enrich IOCs (VirusTotal/AbuseIPDB), produce analyst-ready reports + Splunk/Sigma detections."
+readme = "README.md"
+requires-python = ">=3.11"
+license = { text = "MIT" }
+authors = [{ name = "trac3r00" }]
+keywords = ["phishing", "email", "triage", "soc", "dfir", "sigma", "splunk", "ioc"]
+classifiers = [
+    "Development Status :: 4 - Beta",
+    "Environment :: Console",
+    "Intended Audience :: Information Technology",
+    "License :: OSI Approved :: MIT License",
+    "Programming Language :: Python :: 3.11",
+    "Topic :: Security",
+]
+dependencies = [
+    "requests>=2.31",
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=7.4",
+    "pytest-cov>=4.1",
+]
+
+[project.scripts]
+phish-triage = "phish_triage.cli:main"
+
+[project.urls]
+Repository = "https://github.com/trac3r00/phish-triage"
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+addopts = "-ra -q"

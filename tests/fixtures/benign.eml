@@ -1,0 +1,34 @@
+Subject: Your monthly invoice
+From: Billing <billing@example.com>
+Reply-To: billing@example.com
+To: alice@corp.example
+Date: Wed, 10 Jun 2026 12:00:00 +0000
+Message-ID: <benign-001@example.com>
+Authentication-Results: mx.corp.example; spf=pass smtp.mailfrom=example.com;
+ dkim=pass header.d=example.com; dmarc=pass header.from=example.com
+Received: from mail.example.com (mail.example.com [203.0.113.10]) by
+ mx.corp.example with ESMTPS id ABCDEF; Tue, 10 Jun 2026 12:00:01 +0000
+MIME-Version: 1.0
+Content-Type: multipart/alternative;
+ boundary="===============1190356574447034372=="
+
+--===============1190356574447034372==
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 7bit
+
+Hi Alice,
+
+Your invoice for May is attached.
+
+Thanks,
+Billing
+
+--===============1190356574447034372==
+Content-Type: text/html; charset="utf-8"
+Content-Transfer-Encoding: quoted-printable
+MIME-Version: 1.0
+
+<html><body><p>Hi Alice,</p><p>Your invoice for May is on the <a href=3D"http=
+s://example.com/invoice/123">portal</a>.</p></body></html>
+
+--===============1190356574447034372==--

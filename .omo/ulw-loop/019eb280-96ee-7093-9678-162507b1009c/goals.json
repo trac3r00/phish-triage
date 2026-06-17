@@ -1,0 +1,1027 @@
+{
+  "version": 1,
+  "createdAt": "2026-06-10T17:08:36.497Z",
+  "updatedAt": "2026-06-10T17:08:36.497Z",
+  "briefPath": ".omo/ulw-loop/019eb280-96ee-7093-9678-162507b1009c/brief.md",
+  "goalsPath": ".omo/ulw-loop/019eb280-96ee-7093-9678-162507b1009c/goals.json",
+  "ledgerPath": ".omo/ulw-loop/019eb280-96ee-7093-9678-162507b1009c/ledger.jsonl",
+  "codexGoalMode": "aggregate",
+  "goals": [
+    {
+      "id": "G001-python-3-11-stdlib-first-stage-1-mus",
+      "title": "Python 3.11, stdlib-first. Stage 1 must be PURE stdlib (email, hashli...",
+      "objective": "Python 3.11, stdlib-first. Stage 1 must be PURE stdlib (email, hashlib, re, json, argparse, pathlib).",
+      "status": "pending",
+      "successCriteria": [
+        {
+          "id": "C001",
+          "scenario": "happy path for: Python 3.11, stdlib-first. Stage 1 must be PURE stdlib (email, hashlib, re, j...",
+          "userModel": "happy",
+          "expectedEvidence": "Replace via revise_criterion with observable happy-path proof for goal 1.",
+          "capturedEvidence": null,
+          "status": "pending"
+        },
+        {
+          "id": "C002",
+          "scenario": "edge case (boundary/empty/malformed)",
+          "userModel": "edge",
+          "expectedEvidence": "Replace via revise_criterion with boundary or malformed-input proof for: Python 3.11, stdlib-first. Stage 1 must be PURE stdlib (email, hashlib, re, j....",
+          "capturedEvidence": null,
+          "status": "pending"
+        },
+        {
+          "id": "C003",
+          "scenario": "regression: adjacent surface still works",
+          "userModel": "regression",
+          "expectedEvidence": "Replace via revise_criterion with regression proof for neighboring behavior after: Python 3.11, stdlib-first. Stage 1 must be PURE stdlib (email, hashlib, re, j....",
+          "capturedEvidence": null,
+          "status": "pending"
+        }
+      ],
+      "attempt": 0,
+      "createdAt": "2026-06-10T17:08:36.497Z",
+      "updatedAt": "2026-06-10T17:08:36.497Z"
+    },
+    {
+      "id": "G002-stage-2-may-use-requests-only-manage",
+      "title": "Stage 2 may use `requests` only. Manage deps with a minimal pyproject...",
+      "objective": "Stage 2 may use `requests` only. Manage deps with a minimal pyproject.toml (project name: phish-triage, CLI entry point: `phish-triage`).",
+      "status": "pending",
+      "successCriteria": [
+        {
+          "id": "C001",
+          "scenario": "happy path for: Stage 2 may use `requests` only. Manage deps with a minimal pyproject.toml (p...",
+          "userModel": "happy",
+          "expectedEvidence": "Replace via revise_criterion with observable happy-path proof for goal 2.",
+          "capturedEvidence": null,
+          "status": "pending"
+        },
+        {
+          "id": "C002",
+          "scenario": "edge case (boundary/empty/malformed)",
+          "userModel": "edge",
+          "expectedEvidence": "Replace via revise_criterion with boundary or malformed-input proof for: Stage 2 may use `requests` only. Manage deps with a minimal pyproject.toml (p....",
+          "capturedEvidence": null,
+          "status": "pending"
+        },
+        {
+          "id": "C003",
+          "scenario": "regression: adjacent surface still works",
+          "userModel": "regression",
+          "expectedEvidence": "Replace via revise_criterion with regression proof for neighboring behavior after: Stage 2 may use `requests` only. Manage deps with a minimal pyproject.toml (p....",
+          "capturedEvidence": null,
+          "status": "pending"
+        }
+      ],
+      "attempt": 0,
+      "createdAt": "2026-06-10T17:08:36.497Z",
+      "updatedAt": "2026-06-10T17:08:36.497Z"
+    },
+    {
+      "id": "G003-type-hints-everywhere-from-future-im",
+      "title": "Type hints everywhere. `from __future__ import annotations` in new fi...",
+      "objective": "Type hints everywhere. `from __future__ import annotations` in new files.",
+      "status": "pending",
+      "successCriteria": [
+        {
+          "id": "C001",
+          "scenario": "happy path for: Type hints everywhere. `from __future__ import annotations` in new files.",
+          "userModel": "happy",
+          "expectedEvidence": "Replace via revise_criterion with observable happy-path proof for goal 3.",
+          "capturedEvidence": null,
+          "status": "pending"
+        },
+        {
+          "id": "C002",
+          "scenario": "edge case (boundary/empty/malformed)",
+          "userModel": "edge",
+          "expectedEvidence": "Replace via revise_criterion with boundary or malformed-input proof for: Type hints everywhere. `from __future__ import annotations` in new files..",
+          "capturedEvidence": null,
+          "status": "pending"
+        },
+        {
+          "id": "C003",
+          "scenario": "regression: adjacent surface still works",
+          "userModel": "regression",
+          "expectedEvidence": "Replace via revise_criterion with regression proof for neighboring behavior after: Type hints everywhere. `from __future__ import annotations` in new files..",
+          "capturedEvidence": null,
+          "status": "pending"
+        }
+      ],
+      "attempt": 0,
+      "createdAt": "2026-06-10T17:08:36.497Z",
+      "updatedAt": "2026-06-10T17:08:36.497Z"
+    },
+    {
+      "id": "G004-no-eval-exec-shell-true-no-hardcoded",
+      "title": "No eval/exec/shell=True. No hardcoded secrets — API keys via env vars...",
+      "objective": "No eval/exec/shell=True. No hardcoded secrets — API keys via env vars (VT_API_KEY, ABUSEIPDB_API_KEY).",
+      "status": "pending",
+      "successCriteria": [
+        {
+          "id": "C001",
+          "scenario": "happy path for: No eval/exec/shell=True. No hardcoded secrets — API keys via env vars (VT_API...",
+          "userModel": "happy",
+          "expectedEvidence": "Replace via revise_criterion with observable happy-path proof for goal 4.",
+          "capturedEvidence": null,
+          "status": "pending"
+        },
+        {
+          "id": "C002",
+          "scenario": "edge case (boundary/empty/malformed)",
+          "userModel": "edge",
+          "expectedEvidence": "Replace via revise_criterion with boundary or malformed-input proof for: No eval/exec/shell=True. No hardcoded secrets — API keys via env vars (VT_API....",
+          "capturedEvidence": null,
+          "status": "pending"
+        },
+        {
+          "id": "C003",
+          "scenario": "regression: adjacent surface still works",
+          "userModel": "regression",
+          "expectedEvidence": "Replace via revise_criterion with regression proof for neighboring behavior after: No eval/exec/shell=True. No hardcoded secrets — API keys via env vars (VT_API....",
+          "capturedEvidence": null,
+          "status": "pending"
+        }
+      ],
+      "attempt": 0,
+      "createdAt": "2026-06-10T17:08:36.497Z",
+      "updatedAt": "2026-06-10T17:08:36.497Z"
+    },
+    {
+      "id": "G005-tests-with-pytest-include-sample-eml",
+      "title": "Tests with pytest. Include sample .eml fixtures you generate yourself...",
+      "objective": "Tests with pytest. Include sample .eml fixtures you generate yourself (benign + simulated-phish with SPF fail, reply-to mismatch, suspicious URLs, attachment). Do NOT include any real malware.",
+      "status": "pending",
+      "successCriteria": [
+        {
+          "id": "C001",
+          "scenario": "happy path for: Tests with pytest. Include sample .eml fixtures you generate yourself (benign...",
+          "userModel": "happy",
+          "expectedEvidence": "Replace via revise_criterion with observable happy-path proof for goal 5.",
+          "capturedEvidence": null,
+          "status": "pending"
+        },
+        {
+          "id": "C002",
+          "scenario": "edge case (boundary/empty/malformed)",
+          "userModel": "edge",
+          "expectedEvidence": "Replace via revise_criterion with boundary or malformed-input proof for: Tests with pytest. Include sample .eml fixtures you generate yourself (benign....",
+          "capturedEvidence": null,
+          "status": "pending"
+        },
+        {
+          "id": "C003",
+          "scenario": "regression: adjacent surface still works",
+          "userModel": "regression",
+          "expectedEvidence": "Replace via revise_criterion with regression proof for neighboring behavior after: Tests with pytest. Include sample .eml fixtures you generate yourself (benign....",
+          "capturedEvidence": null,
+          "status": "pending"
+        }
+      ],
+      "attempt": 0,
+      "createdAt": "2026-06-10T17:08:36.497Z",
+      "updatedAt": "2026-06-10T17:08:36.497Z"
+    },
+    {
+      "id": "G006-each-stage-gets-its-own-readme-secti",
+      "title": "Each stage gets its own README section + a docs/ writeup (see below).",
+      "objective": "Each stage gets its own README section + a docs/ writeup (see below).",
+      "status": "pending",
+      "successCriteria": [
+        {
+          "id": "C001",
+          "scenario": "happy path for: Each stage gets its own README section + a docs/ writeup (see below).",
+          "userModel": "happy",
+          "expectedEvidence": "Replace via revise_criterion with observable happy-path proof for goal 6.",
+          "capturedEvidence": null,
+          "status": "pending"
+        },
+        {
+          "id": "C002",
+          "scenario": "edge case (boundary/empty/malformed)",
+          "userModel": "edge",
+          "expectedEvidence": "Replace via revise_criterion with boundary or malformed-input proof for: Each stage gets its own README section + a docs/ writeup (see below)..",
+          "capturedEvidence": null,
+          "status": "pending"
+        },
+        {
+          "id": "C003",
+          "scenario": "regression: adjacent surface still works",
+          "userModel": "regression",
+          "expectedEvidence": "Replace via revise_criterion with regression proof for neighboring behavior after: Each stage gets its own README section + a docs/ writeup (see below)..",
+          "capturedEvidence": null,
+          "status": "pending"
+        }
+      ],
+      "attempt": 0,
+      "createdAt": "2026-06-10T17:08:36.497Z",
+      "updatedAt": "2026-06-10T17:08:36.497Z"
+    },
+    {
+      "id": "G007-authentication-results-spf-dkim-dmar",
+      "title": "Authentication-Results: SPF/DKIM/DMARC pass/fail/none (parse the head...",
+      "objective": "Authentication-Results: SPF/DKIM/DMARC pass/fail/none (parse the header robustly)",
+      "status": "pending",
+      "successCriteria": [
+        {
+          "id": "C001",
+          "scenario": "happy path for: Authentication-Results: SPF/DKIM/DMARC pass/fail/none (parse the header robus...",
+          "userModel": "happy",
+          "expectedEvidence": "Replace via revise_criterion with observable happy-path proof for goal 7.",
+          "capturedEvidence": null,
+          "status": "pending"
+        },
+        {
+          "id": "C002",
+          "scenario": "edge case (boundary/empty/malformed)",
+          "userModel": "edge",
+          "expectedEvidence": "Replace via revise_criterion with boundary or malformed-input proof for: Authentication-Results: SPF/DKIM/DMARC pass/fail/none (parse the header robus....",
+          "capturedEvidence": null,
+          "status": "pending"
+        },
+        {
+          "id": "C003",
+          "scenario": "regression: adjacent surface still works",
+          "userModel": "regression",
+          "expectedEvidence": "Replace via revise_criterion with regression proof for neighboring behavior after: Authentication-Results: SPF/DKIM/DMARC pass/fail/none (parse the header robus....",
+          "capturedEvidence": null,
+          "status": "pending"
+        }
+      ],
+      "attempt": 0,
+      "createdAt": "2026-06-10T17:08:36.497Z",
+      "updatedAt": "2026-06-10T17:08:36.497Z"
+    },
+    {
+      "id": "G008-from-vs-reply-to-mismatch-detection",
+      "title": "From vs Reply-To mismatch detection, From display-name vs addr-spec m...",
+      "objective": "From vs Reply-To mismatch detection, From display-name vs addr-spec mismatch",
+      "status": "pending",
+      "successCriteria": [
+        {
+          "id": "C001",
+          "scenario": "happy path for: From vs Reply-To mismatch detection, From display-name vs addr-spec mismatch",
+          "userModel": "happy",
+          "expectedEvidence": "Replace via revise_criterion with observable happy-path proof for goal 8.",
+          "capturedEvidence": null,
+          "status": "pending"
+        },
+        {
+          "id": "C002",
+          "scenario": "edge case (boundary/empty/malformed)",
+          "userModel": "edge",
+          "expectedEvidence": "Replace via revise_criterion with boundary or malformed-input proof for: From vs Reply-To mismatch detection, From display-name vs addr-spec mismatch.",
+          "capturedEvidence": null,
+          "status": "pending"
+        },
+        {
+          "id": "C003",
+          "scenario": "regression: adjacent surface still works",
+          "userModel": "regression",
+          "expectedEvidence": "Replace via revise_criterion with regression proof for neighboring behavior after: From vs Reply-To mismatch detection, From display-name vs addr-spec mismatch.",
+          "capturedEvidence": null,
+          "status": "pending"
+        }
+      ],
+      "attempt": 0,
+      "createdAt": "2026-06-10T17:08:36.497Z",
+      "updatedAt": "2026-06-10T17:08:36.497Z"
+    },
+    {
+      "id": "G009-received-chain-ordered-hop-list-host",
+      "title": "Received chain: ordered hop list (host, IP, timestamp), flag private→...",
+      "objective": "Received chain: ordered hop list (host, IP, timestamp), flag private→public anomalies",
+      "status": "pending",
+      "successCriteria": [
+        {
+          "id": "C001",
+          "scenario": "happy path for: Received chain: ordered hop list (host, IP, timestamp), flag private→public a...",
+          "userModel": "happy",
+          "expectedEvidence": "Replace via revise_criterion with observable happy-path proof for goal 9.",
+          "capturedEvidence": null,
+          "status": "pending"
+        },
+        {
+          "id": "C002",
+          "scenario": "edge case (boundary/empty/malformed)",
+          "userModel": "edge",
+          "expectedEvidence": "Replace via revise_criterion with boundary or malformed-input proof for: Received chain: ordered hop list (host, IP, timestamp), flag private→public a....",
+          "capturedEvidence": null,
+          "status": "pending"
+        },
+        {
+          "id": "C003",
+          "scenario": "regression: adjacent surface still works",
+          "userModel": "regression",
+          "expectedEvidence": "Replace via revise_criterion with regression proof for neighboring behavior after: Received chain: ordered hop list (host, IP, timestamp), flag private→public a....",
+          "capturedEvidence": null,
+          "status": "pending"
+        }
+      ],
+      "attempt": 0,
+      "createdAt": "2026-06-10T17:08:36.497Z",
+      "updatedAt": "2026-06-10T17:08:36.497Z"
+    },
+    {
+      "id": "G010-all-urls-from-text-html-bodies-handl",
+      "title": "All URLs from text/html bodies (handle quoted-printable + base64 tran...",
+      "objective": "All URLs from text/html bodies (handle quoted-printable + base64 transfer encodings), defang output (hxxp, [.])",
+      "status": "pending",
+      "successCriteria": [
+        {
+          "id": "C001",
+          "scenario": "happy path for: All URLs from text/html bodies (handle quoted-printable + base64 transfer enc...",
+          "userModel": "happy",
+          "expectedEvidence": "Replace via revise_criterion with observable happy-path proof for goal 10.",
+          "capturedEvidence": null,
+          "status": "pending"
+        },
+        {
+          "id": "C002",
+          "scenario": "edge case (boundary/empty/malformed)",
+          "userModel": "edge",
+          "expectedEvidence": "Replace via revise_criterion with boundary or malformed-input proof for: All URLs from text/html bodies (handle quoted-printable + base64 transfer enc....",
+          "capturedEvidence": null,
+          "status": "pending"
+        },
+        {
+          "id": "C003",
+          "scenario": "regression: adjacent surface still works",
+          "userModel": "regression",
+          "expectedEvidence": "Replace via revise_criterion with regression proof for neighboring behavior after: All URLs from text/html bodies (handle quoted-printable + base64 transfer enc....",
+          "capturedEvidence": null,
+          "status": "pending"
+        }
+      ],
+      "attempt": 0,
+      "createdAt": "2026-06-10T17:08:36.497Z",
+      "updatedAt": "2026-06-10T17:08:36.497Z"
+    },
+    {
+      "id": "G011-attachments-filename-content-type-si",
+      "title": "Attachments: filename, content-type, size, MD5/SHA1/SHA256",
+      "objective": "Attachments: filename, content-type, size, MD5/SHA1/SHA256",
+      "status": "pending",
+      "successCriteria": [
+        {
+          "id": "C001",
+          "scenario": "happy path for: Attachments: filename, content-type, size, MD5/SHA1/SHA256",
+          "userModel": "happy",
+          "expectedEvidence": "Replace via revise_criterion with observable happy-path proof for goal 11.",
+          "capturedEvidence": null,
+          "status": "pending"
+        },
+        {
+          "id": "C002",
+          "scenario": "edge case (boundary/empty/malformed)",
+          "userModel": "edge",
+          "expectedEvidence": "Replace via revise_criterion with boundary or malformed-input proof for: Attachments: filename, content-type, size, MD5/SHA1/SHA256.",
+          "capturedEvidence": null,
+          "status": "pending"
+        },
+        {
+          "id": "C003",
+          "scenario": "regression: adjacent surface still works",
+          "userModel": "regression",
+          "expectedEvidence": "Replace via revise_criterion with regression proof for neighboring behavior after: Attachments: filename, content-type, size, MD5/SHA1/SHA256.",
+          "capturedEvidence": null,
+          "status": "pending"
+        }
+      ],
+      "attempt": 0,
+      "createdAt": "2026-06-10T17:08:36.497Z",
+      "updatedAt": "2026-06-10T17:08:36.497Z"
+    },
+    {
+      "id": "G012-output-structured-json-and-a-human-r",
+      "title": "Output: structured JSON and a human-readable markdown summary",
+      "objective": "Output: structured JSON and a human-readable markdown summary",
+      "status": "pending",
+      "successCriteria": [
+        {
+          "id": "C001",
+          "scenario": "happy path for: Output: structured JSON and a human-readable markdown summary",
+          "userModel": "happy",
+          "expectedEvidence": "Replace via revise_criterion with observable happy-path proof for goal 12.",
+          "capturedEvidence": null,
+          "status": "pending"
+        },
+        {
+          "id": "C002",
+          "scenario": "edge case (boundary/empty/malformed)",
+          "userModel": "edge",
+          "expectedEvidence": "Replace via revise_criterion with boundary or malformed-input proof for: Output: structured JSON and a human-readable markdown summary.",
+          "capturedEvidence": null,
+          "status": "pending"
+        },
+        {
+          "id": "C003",
+          "scenario": "regression: adjacent surface still works",
+          "userModel": "regression",
+          "expectedEvidence": "Replace via revise_criterion with regression proof for neighboring behavior after: Output: structured JSON and a human-readable markdown summary.",
+          "capturedEvidence": null,
+          "status": "pending"
+        }
+      ],
+      "attempt": 0,
+      "createdAt": "2026-06-10T17:08:36.497Z",
+      "updatedAt": "2026-06-10T17:08:36.497Z"
+    },
+    {
+      "id": "G013-virustotal-v3-free-api-lookup-file-h",
+      "title": "VirusTotal v3 free API: lookup file hashes + URLs/domains (GET endpoi...",
+      "objective": "VirusTotal v3 free API: lookup file hashes + URLs/domains (GET endpoints only, respect 4 req/min free tier — implement a simple rate limiter with backoff)",
+      "status": "pending",
+      "successCriteria": [
+        {
+          "id": "C001",
+          "scenario": "happy path for: VirusTotal v3 free API: lookup file hashes + URLs/domains (GET endpoints only...",
+          "userModel": "happy",
+          "expectedEvidence": "Replace via revise_criterion with observable happy-path proof for goal 13.",
+          "capturedEvidence": null,
+          "status": "pending"
+        },
+        {
+          "id": "C002",
+          "scenario": "edge case (boundary/empty/malformed)",
+          "userModel": "edge",
+          "expectedEvidence": "Replace via revise_criterion with boundary or malformed-input proof for: VirusTotal v3 free API: lookup file hashes + URLs/domains (GET endpoints only....",
+          "capturedEvidence": null,
+          "status": "pending"
+        },
+        {
+          "id": "C003",
+          "scenario": "regression: adjacent surface still works",
+          "userModel": "regression",
+          "expectedEvidence": "Replace via revise_criterion with regression proof for neighboring behavior after: VirusTotal v3 free API: lookup file hashes + URLs/domains (GET endpoints only....",
+          "capturedEvidence": null,
+          "status": "pending"
+        }
+      ],
+      "attempt": 0,
+      "createdAt": "2026-06-10T17:08:36.497Z",
+      "updatedAt": "2026-06-10T17:08:36.497Z"
+    },
+    {
+      "id": "G014-abuseipdb-check-endpoint-for-receive",
+      "title": "AbuseIPDB check endpoint for Received-chain public IPs",
+      "objective": "AbuseIPDB check endpoint for Received-chain public IPs",
+      "status": "pending",
+      "successCriteria": [
+        {
+          "id": "C001",
+          "scenario": "happy path for: AbuseIPDB check endpoint for Received-chain public IPs",
+          "userModel": "happy",
+          "expectedEvidence": "Replace via revise_criterion with observable happy-path proof for goal 14.",
+          "capturedEvidence": null,
+          "status": "pending"
+        },
+        {
+          "id": "C002",
+          "scenario": "edge case (boundary/empty/malformed)",
+          "userModel": "edge",
+          "expectedEvidence": "Replace via revise_criterion with boundary or malformed-input proof for: AbuseIPDB check endpoint for Received-chain public IPs.",
+          "capturedEvidence": null,
+          "status": "pending"
+        },
+        {
+          "id": "C003",
+          "scenario": "regression: adjacent surface still works",
+          "userModel": "regression",
+          "expectedEvidence": "Replace via revise_criterion with regression proof for neighboring behavior after: AbuseIPDB check endpoint for Received-chain public IPs.",
+          "capturedEvidence": null,
+          "status": "pending"
+        }
+      ],
+      "attempt": 0,
+      "createdAt": "2026-06-10T17:08:36.497Z",
+      "updatedAt": "2026-06-10T17:08:36.497Z"
+    },
+    {
+      "id": "G015-graceful-degradation-if-api-key-miss",
+      "title": "Graceful degradation: if API key missing, skip that source and note i...",
+      "objective": "Graceful degradation: if API key missing, skip that source and note it in the report",
+      "status": "pending",
+      "successCriteria": [
+        {
+          "id": "C001",
+          "scenario": "happy path for: Graceful degradation: if API key missing, skip that source and note it in the...",
+          "userModel": "happy",
+          "expectedEvidence": "Replace via revise_criterion with observable happy-path proof for goal 15.",
+          "capturedEvidence": null,
+          "status": "pending"
+        },
+        {
+          "id": "C002",
+          "scenario": "edge case (boundary/empty/malformed)",
+          "userModel": "edge",
+          "expectedEvidence": "Replace via revise_criterion with boundary or malformed-input proof for: Graceful degradation: if API key missing, skip that source and note it in the....",
+          "capturedEvidence": null,
+          "status": "pending"
+        },
+        {
+          "id": "C003",
+          "scenario": "regression: adjacent surface still works",
+          "userModel": "regression",
+          "expectedEvidence": "Replace via revise_criterion with regression proof for neighboring behavior after: Graceful degradation: if API key missing, skip that source and note it in the....",
+          "capturedEvidence": null,
+          "status": "pending"
+        }
+      ],
+      "attempt": 0,
+      "createdAt": "2026-06-10T17:08:36.497Z",
+      "updatedAt": "2026-06-10T17:08:36.497Z"
+    },
+    {
+      "id": "G016-verdict-scoring-weighted-score-0-100",
+      "title": "Verdict scoring: weighted score 0-100 from auth failures, mismatches,...",
+      "objective": "Verdict scoring: weighted score 0-100 from auth failures, mismatches, VT detections, AbuseIPDB confidence; map to verdict (benign/suspicious/malicious)",
+      "status": "pending",
+      "successCriteria": [
+        {
+          "id": "C001",
+          "scenario": "happy path for: Verdict scoring: weighted score 0-100 from auth failures, mismatches, VT dete...",
+          "userModel": "happy",
+          "expectedEvidence": "Replace via revise_criterion with observable happy-path proof for goal 16.",
+          "capturedEvidence": null,
+          "status": "pending"
+        },
+        {
+          "id": "C002",
+          "scenario": "edge case (boundary/empty/malformed)",
+          "userModel": "edge",
+          "expectedEvidence": "Replace via revise_criterion with boundary or malformed-input proof for: Verdict scoring: weighted score 0-100 from auth failures, mismatches, VT dete....",
+          "capturedEvidence": null,
+          "status": "pending"
+        },
+        {
+          "id": "C003",
+          "scenario": "regression: adjacent surface still works",
+          "userModel": "regression",
+          "expectedEvidence": "Replace via revise_criterion with regression proof for neighboring behavior after: Verdict scoring: weighted score 0-100 from auth failures, mismatches, VT dete....",
+          "capturedEvidence": null,
+          "status": "pending"
+        }
+      ],
+      "attempt": 0,
+      "createdAt": "2026-06-10T17:08:36.497Z",
+      "updatedAt": "2026-06-10T17:08:36.497Z"
+    },
+    {
+      "id": "G017-output-markdown-triage-report-analys",
+      "title": "Output: markdown triage report (analyst-style: summary, IOC table, en...",
+      "objective": "Output: markdown triage report (analyst-style: summary, IOC table, enrichment evidence, verdict + rationale)",
+      "status": "pending",
+      "successCriteria": [
+        {
+          "id": "C001",
+          "scenario": "happy path for: Output: markdown triage report (analyst-style: summary, IOC table, enrichment...",
+          "userModel": "happy",
+          "expectedEvidence": "Replace via revise_criterion with observable happy-path proof for goal 17.",
+          "capturedEvidence": null,
+          "status": "pending"
+        },
+        {
+          "id": "C002",
+          "scenario": "edge case (boundary/empty/malformed)",
+          "userModel": "edge",
+          "expectedEvidence": "Replace via revise_criterion with boundary or malformed-input proof for: Output: markdown triage report (analyst-style: summary, IOC table, enrichment....",
+          "capturedEvidence": null,
+          "status": "pending"
+        },
+        {
+          "id": "C003",
+          "scenario": "regression: adjacent surface still works",
+          "userModel": "regression",
+          "expectedEvidence": "Replace via revise_criterion with regression proof for neighboring behavior after: Output: markdown triage report (analyst-style: summary, IOC table, enrichment....",
+          "capturedEvidence": null,
+          "status": "pending"
+        }
+      ],
+      "attempt": 0,
+      "createdAt": "2026-06-10T17:08:36.497Z",
+      "updatedAt": "2026-06-10T17:08:36.497Z"
+    },
+    {
+      "id": "G018-cache-api-responses-in-cache-json-ke",
+      "title": "Cache API responses in .cache/ (JSON, keyed by IOC) to avoid burning...",
+      "objective": "Cache API responses in .cache/ (JSON, keyed by IOC) to avoid burning quota",
+      "status": "pending",
+      "successCriteria": [
+        {
+          "id": "C001",
+          "scenario": "happy path for: Cache API responses in .cache/ (JSON, keyed by IOC) to avoid burning quota",
+          "userModel": "happy",
+          "expectedEvidence": "Replace via revise_criterion with observable happy-path proof for goal 18.",
+          "capturedEvidence": null,
+          "status": "pending"
+        },
+        {
+          "id": "C002",
+          "scenario": "edge case (boundary/empty/malformed)",
+          "userModel": "edge",
+          "expectedEvidence": "Replace via revise_criterion with boundary or malformed-input proof for: Cache API responses in .cache/ (JSON, keyed by IOC) to avoid burning quota.",
+          "capturedEvidence": null,
+          "status": "pending"
+        },
+        {
+          "id": "C003",
+          "scenario": "regression: adjacent surface still works",
+          "userModel": "regression",
+          "expectedEvidence": "Replace via revise_criterion with regression proof for neighboring behavior after: Cache API responses in .cache/ (JSON, keyed by IOC) to avoid burning quota.",
+          "capturedEvidence": null,
+          "status": "pending"
+        }
+      ],
+      "attempt": 0,
+      "createdAt": "2026-06-10T17:08:36.497Z",
+      "updatedAt": "2026-06-10T17:08:36.497Z"
+    },
+    {
+      "id": "G019-unit-tests-must-mock-http-no-live-ap",
+      "title": "Unit tests must mock HTTP (no live API calls in tests).",
+      "objective": "Unit tests must mock HTTP (no live API calls in tests).",
+      "status": "pending",
+      "successCriteria": [
+        {
+          "id": "C001",
+          "scenario": "happy path for: Unit tests must mock HTTP (no live API calls in tests).",
+          "userModel": "happy",
+          "expectedEvidence": "Replace via revise_criterion with observable happy-path proof for goal 19.",
+          "capturedEvidence": null,
+          "status": "pending"
+        },
+        {
+          "id": "C002",
+          "scenario": "edge case (boundary/empty/malformed)",
+          "userModel": "edge",
+          "expectedEvidence": "Replace via revise_criterion with boundary or malformed-input proof for: Unit tests must mock HTTP (no live API calls in tests)..",
+          "capturedEvidence": null,
+          "status": "pending"
+        },
+        {
+          "id": "C003",
+          "scenario": "regression: adjacent surface still works",
+          "userModel": "regression",
+          "expectedEvidence": "Replace via revise_criterion with regression proof for neighboring behavior after: Unit tests must mock HTTP (no live API calls in tests)..",
+          "capturedEvidence": null,
+          "status": "pending"
+        }
+      ],
+      "attempt": 0,
+      "createdAt": "2026-06-10T17:08:36.497Z",
+      "updatedAt": "2026-06-10T17:08:36.497Z"
+    },
+    {
+      "id": "G020-detections-spl-spl-splunk-spl-querie",
+      "title": "detections/spl/*.spl — Splunk SPL queries (assume standard email secu...",
+      "objective": "detections/spl/*.spl — Splunk SPL queries (assume standard email security / proxy log sourcetypes; document assumptions in comments)",
+      "status": "pending",
+      "successCriteria": [
+        {
+          "id": "C001",
+          "scenario": "happy path for: detections/spl/*.spl — Splunk SPL queries (assume standard email security / p...",
+          "userModel": "happy",
+          "expectedEvidence": "Replace via revise_criterion with observable happy-path proof for goal 20.",
+          "capturedEvidence": null,
+          "status": "pending"
+        },
+        {
+          "id": "C002",
+          "scenario": "edge case (boundary/empty/malformed)",
+          "userModel": "edge",
+          "expectedEvidence": "Replace via revise_criterion with boundary or malformed-input proof for: detections/spl/*.spl — Splunk SPL queries (assume standard email security / p....",
+          "capturedEvidence": null,
+          "status": "pending"
+        },
+        {
+          "id": "C003",
+          "scenario": "regression: adjacent surface still works",
+          "userModel": "regression",
+          "expectedEvidence": "Replace via revise_criterion with regression proof for neighboring behavior after: detections/spl/*.spl — Splunk SPL queries (assume standard email security / p....",
+          "capturedEvidence": null,
+          "status": "pending"
+        }
+      ],
+      "attempt": 0,
+      "createdAt": "2026-06-10T17:08:36.497Z",
+      "updatedAt": "2026-06-10T17:08:36.497Z"
+    },
+    {
+      "id": "G021-detections-sigma-yml-valid-sigma-rul",
+      "title": "detections/sigma/*.yml — valid Sigma rules (correct schema: title, id...",
+      "objective": "detections/sigma/*.yml — valid Sigma rules (correct schema: title, id (uuid4), status, description, logsource, detection, falsepositives, level, tags with attack.* technique IDs)",
+      "status": "pending",
+      "successCriteria": [
+        {
+          "id": "C001",
+          "scenario": "happy path for: detections/sigma/*.yml — valid Sigma rules (correct schema: title, id (uuid4)...",
+          "userModel": "happy",
+          "expectedEvidence": "Replace via revise_criterion with observable happy-path proof for goal 21.",
+          "capturedEvidence": null,
+          "status": "pending"
+        },
+        {
+          "id": "C002",
+          "scenario": "edge case (boundary/empty/malformed)",
+          "userModel": "edge",
+          "expectedEvidence": "Replace via revise_criterion with boundary or malformed-input proof for: detections/sigma/*.yml — valid Sigma rules (correct schema: title, id (uuid4)....",
+          "capturedEvidence": null,
+          "status": "pending"
+        },
+        {
+          "id": "C003",
+          "scenario": "regression: adjacent surface still works",
+          "userModel": "regression",
+          "expectedEvidence": "Replace via revise_criterion with regression proof for neighboring behavior after: detections/sigma/*.yml — valid Sigma rules (correct schema: title, id (uuid4)....",
+          "capturedEvidence": null,
+          "status": "pending"
+        }
+      ],
+      "attempt": 0,
+      "createdAt": "2026-06-10T17:08:36.497Z",
+      "updatedAt": "2026-06-10T17:08:36.497Z"
+    },
+    {
+      "id": "G022-root-readme-md-project-overview-arch",
+      "title": "Root README.md: project overview, architecture diagram (ASCII or merm...",
+      "objective": "Root README.md: project overview, architecture diagram (ASCII or mermaid), quickstart, sample output screenshot-as-codeblock, stage-by-stage breakdown, MITRE mapping table",
+      "status": "pending",
+      "successCriteria": [
+        {
+          "id": "C001",
+          "scenario": "happy path for: Root README.md: project overview, architecture diagram (ASCII or mermaid), qu...",
+          "userModel": "happy",
+          "expectedEvidence": "Replace via revise_criterion with observable happy-path proof for goal 22.",
+          "capturedEvidence": null,
+          "status": "pending"
+        },
+        {
+          "id": "C002",
+          "scenario": "edge case (boundary/empty/malformed)",
+          "userModel": "edge",
+          "expectedEvidence": "Replace via revise_criterion with boundary or malformed-input proof for: Root README.md: project overview, architecture diagram (ASCII or mermaid), qu....",
+          "capturedEvidence": null,
+          "status": "pending"
+        },
+        {
+          "id": "C003",
+          "scenario": "regression: adjacent surface still works",
+          "userModel": "regression",
+          "expectedEvidence": "Replace via revise_criterion with regression proof for neighboring behavior after: Root README.md: project overview, architecture diagram (ASCII or mermaid), qu....",
+          "capturedEvidence": null,
+          "status": "pending"
+        }
+      ],
+      "attempt": 0,
+      "createdAt": "2026-06-10T17:08:36.497Z",
+      "updatedAt": "2026-06-10T17:08:36.497Z"
+    },
+    {
+      "id": "G023-docs-stage1-parsing-walkthrough-md-w",
+      "title": "docs/stage1-parsing-walkthrough.md: walk through a sample phish .eml...",
+      "objective": "docs/stage1-parsing-walkthrough.md: walk through a sample phish .eml end to end — what each header means, why each signal matters",
+      "status": "pending",
+      "successCriteria": [
+        {
+          "id": "C001",
+          "scenario": "happy path for: docs/stage1-parsing-walkthrough.md: walk through a sample phish .eml end to e...",
+          "userModel": "happy",
+          "expectedEvidence": "Replace via revise_criterion with observable happy-path proof for goal 23.",
+          "capturedEvidence": null,
+          "status": "pending"
+        },
+        {
+          "id": "C002",
+          "scenario": "edge case (boundary/empty/malformed)",
+          "userModel": "edge",
+          "expectedEvidence": "Replace via revise_criterion with boundary or malformed-input proof for: docs/stage1-parsing-walkthrough.md: walk through a sample phish .eml end to e....",
+          "capturedEvidence": null,
+          "status": "pending"
+        },
+        {
+          "id": "C003",
+          "scenario": "regression: adjacent surface still works",
+          "userModel": "regression",
+          "expectedEvidence": "Replace via revise_criterion with regression proof for neighboring behavior after: docs/stage1-parsing-walkthrough.md: walk through a sample phish .eml end to e....",
+          "capturedEvidence": null,
+          "status": "pending"
+        }
+      ],
+      "attempt": 0,
+      "createdAt": "2026-06-10T17:08:36.497Z",
+      "updatedAt": "2026-06-10T17:08:36.497Z"
+    },
+    {
+      "id": "G024-docs-stage2-enrichment-walkthrough-m",
+      "title": "docs/stage2-enrichment-walkthrough.md: triage workflow with the APIs,...",
+      "objective": "docs/stage2-enrichment-walkthrough.md: triage workflow with the APIs, rate-limit/quota notes",
+      "status": "pending",
+      "successCriteria": [
+        {
+          "id": "C001",
+          "scenario": "happy path for: docs/stage2-enrichment-walkthrough.md: triage workflow with the APIs, rate-li...",
+          "userModel": "happy",
+          "expectedEvidence": "Replace via revise_criterion with observable happy-path proof for goal 24.",
+          "capturedEvidence": null,
+          "status": "pending"
+        },
+        {
+          "id": "C002",
+          "scenario": "edge case (boundary/empty/malformed)",
+          "userModel": "edge",
+          "expectedEvidence": "Replace via revise_criterion with boundary or malformed-input proof for: docs/stage2-enrichment-walkthrough.md: triage workflow with the APIs, rate-li....",
+          "capturedEvidence": null,
+          "status": "pending"
+        },
+        {
+          "id": "C003",
+          "scenario": "regression: adjacent surface still works",
+          "userModel": "regression",
+          "expectedEvidence": "Replace via revise_criterion with regression proof for neighboring behavior after: docs/stage2-enrichment-walkthrough.md: triage workflow with the APIs, rate-li....",
+          "capturedEvidence": null,
+          "status": "pending"
+        }
+      ],
+      "attempt": 0,
+      "createdAt": "2026-06-10T17:08:36.497Z",
+      "updatedAt": "2026-06-10T17:08:36.497Z"
+    },
+    {
+      "id": "G025-docs-stage3-detection-engineering-md",
+      "title": "docs/stage3-detection-engineering.md: how patterns became rules, SPL↔...",
+      "objective": "docs/stage3-detection-engineering.md: how patterns became rules, SPL↔Sigma translation notes",
+      "status": "pending",
+      "successCriteria": [
+        {
+          "id": "C001",
+          "scenario": "happy path for: docs/stage3-detection-engineering.md: how patterns became rules, SPL↔Sigma tr...",
+          "userModel": "happy",
+          "expectedEvidence": "Replace via revise_criterion with observable happy-path proof for goal 25.",
+          "capturedEvidence": null,
+          "status": "pending"
+        },
+        {
+          "id": "C002",
+          "scenario": "edge case (boundary/empty/malformed)",
+          "userModel": "edge",
+          "expectedEvidence": "Replace via revise_criterion with boundary or malformed-input proof for: docs/stage3-detection-engineering.md: how patterns became rules, SPL↔Sigma tr....",
+          "capturedEvidence": null,
+          "status": "pending"
+        },
+        {
+          "id": "C003",
+          "scenario": "regression: adjacent surface still works",
+          "userModel": "regression",
+          "expectedEvidence": "Replace via revise_criterion with regression proof for neighboring behavior after: docs/stage3-detection-engineering.md: how patterns became rules, SPL↔Sigma tr....",
+          "capturedEvidence": null,
+          "status": "pending"
+        }
+      ],
+      "attempt": 0,
+      "createdAt": "2026-06-10T17:08:36.497Z",
+      "updatedAt": "2026-06-10T17:08:36.497Z"
+    },
+    {
+      "id": "G026-pip-install-e-in-a-venv-works",
+      "title": "`pip install -e .` in a venv works",
+      "objective": "`pip install -e .` in a venv works",
+      "status": "pending",
+      "successCriteria": [
+        {
+          "id": "C001",
+          "scenario": "happy path for: `pip install -e .` in a venv works",
+          "userModel": "happy",
+          "expectedEvidence": "Replace via revise_criterion with observable happy-path proof for goal 26.",
+          "capturedEvidence": null,
+          "status": "pending"
+        },
+        {
+          "id": "C002",
+          "scenario": "edge case (boundary/empty/malformed)",
+          "userModel": "edge",
+          "expectedEvidence": "Replace via revise_criterion with boundary or malformed-input proof for: `pip install -e .` in a venv works.",
+          "capturedEvidence": null,
+          "status": "pending"
+        },
+        {
+          "id": "C003",
+          "scenario": "regression: adjacent surface still works",
+          "userModel": "regression",
+          "expectedEvidence": "Replace via revise_criterion with regression proof for neighboring behavior after: `pip install -e .` in a venv works.",
+          "capturedEvidence": null,
+          "status": "pending"
+        }
+      ],
+      "attempt": 0,
+      "createdAt": "2026-06-10T17:08:36.497Z",
+      "updatedAt": "2026-06-10T17:08:36.497Z"
+    },
+    {
+      "id": "G027-phish-triage-parse-tests-fixtures-ph",
+      "title": "`phish-triage parse tests/fixtures/phish_sample.eml --json` produces...",
+      "objective": "`phish-triage parse tests/fixtures/phish_sample.eml --json` produces valid JSON",
+      "status": "pending",
+      "successCriteria": [
+        {
+          "id": "C001",
+          "scenario": "happy path for: `phish-triage parse tests/fixtures/phish_sample.eml --json` produces valid JSON",
+          "userModel": "happy",
+          "expectedEvidence": "Replace via revise_criterion with observable happy-path proof for goal 27.",
+          "capturedEvidence": null,
+          "status": "pending"
+        },
+        {
+          "id": "C002",
+          "scenario": "edge case (boundary/empty/malformed)",
+          "userModel": "edge",
+          "expectedEvidence": "Replace via revise_criterion with boundary or malformed-input proof for: `phish-triage parse tests/fixtures/phish_sample.eml --json` produces valid JSON.",
+          "capturedEvidence": null,
+          "status": "pending"
+        },
+        {
+          "id": "C003",
+          "scenario": "regression: adjacent surface still works",
+          "userModel": "regression",
+          "expectedEvidence": "Replace via revise_criterion with regression proof for neighboring behavior after: `phish-triage parse tests/fixtures/phish_sample.eml --json` produces valid JSON.",
+          "capturedEvidence": null,
+          "status": "pending"
+        }
+      ],
+      "attempt": 0,
+      "createdAt": "2026-06-10T17:08:36.497Z",
+      "updatedAt": "2026-06-10T17:08:36.497Z"
+    },
+    {
+      "id": "G028-pytest-q-all-green",
+      "title": "`pytest -q` all green",
+      "objective": "`pytest -q` all green",
+      "status": "pending",
+      "successCriteria": [
+        {
+          "id": "C001",
+          "scenario": "happy path for: `pytest -q` all green",
+          "userModel": "happy",
+          "expectedEvidence": "Replace via revise_criterion with observable happy-path proof for goal 28.",
+          "capturedEvidence": null,
+          "status": "pending"
+        },
+        {
+          "id": "C002",
+          "scenario": "edge case (boundary/empty/malformed)",
+          "userModel": "edge",
+          "expectedEvidence": "Replace via revise_criterion with boundary or malformed-input proof for: `pytest -q` all green.",
+          "capturedEvidence": null,
+          "status": "pending"
+        },
+        {
+          "id": "C003",
+          "scenario": "regression: adjacent surface still works",
+          "userModel": "regression",
+          "expectedEvidence": "Replace via revise_criterion with regression proof for neighboring behavior after: `pytest -q` all green.",
+          "capturedEvidence": null,
+          "status": "pending"
+        }
+      ],
+      "attempt": 0,
+      "createdAt": "2026-06-10T17:08:36.497Z",
+      "updatedAt": "2026-06-10T17:08:36.497Z"
+    },
+    {
+      "id": "G029-commit-in-logical-chunks-stage-1-sta",
+      "title": "Commit in logical chunks (stage 1 / stage 2 / stage 3 / docs), then p...",
+      "objective": "Commit in logical chunks (stage 1 / stage 2 / stage 3 / docs), then push to origin main.",
+      "status": "pending",
+      "successCriteria": [
+        {
+          "id": "C001",
+          "scenario": "happy path for: Commit in logical chunks (stage 1 / stage 2 / stage 3 / docs), then push to o...",
+          "userModel": "happy",
+          "expectedEvidence": "Replace via revise_criterion with observable happy-path proof for goal 29.",
+          "capturedEvidence": null,
+          "status": "pending"
+        },
+        {
+          "id": "C002",
+          "scenario": "edge case (boundary/empty/malformed)",
+          "userModel": "edge",
+          "expectedEvidence": "Replace via revise_criterion with boundary or malformed-input proof for: Commit in logical chunks (stage 1 / stage 2 / stage 3 / docs), then push to o....",
+          "capturedEvidence": null,
+          "status": "pending"
+        },
+        {
+          "id": "C003",
+          "scenario": "regression: adjacent surface still works",
+          "userModel": "regression",
+          "expectedEvidence": "Replace via revise_criterion with regression proof for neighboring behavior after: Commit in logical chunks (stage 1 / stage 2 / stage 3 / docs), then push to o....",
+          "capturedEvidence": null,
+          "status": "pending"
+        }
+      ],
+      "attempt": 0,
+      "createdAt": "2026-06-10T17:08:36.497Z",
+      "updatedAt": "2026-06-10T17:08:36.497Z"
+    }
+  ],
+  "codexObjective": "Complete the durable ulw-loop plan in .omo/ulw-loop/019eb280-96ee-7093-9678-162507b1009c/goals.json, including later accepted/appended stories, under the original brief constraints; use .omo/ulw-loop/019eb280-96ee-7093-9678-162507b1009c/ledger.jsonl as the audit trail."
+}
