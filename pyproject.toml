@@ -28,6 +28,9 @@ dev = [
     "pytest>=7.4",
     "pytest-cov>=4.1",
 ]
+web = [
+    "Flask>=3.0",
+]
 
 [project.scripts]
 phish-triage = "phish_triage.cli:main"

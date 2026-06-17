@@ -17,6 +17,19 @@ Feed it a single `.eml` file; get back:
 
 > ⚙️  Stage 1 is **pure Python 3.11 stdlib**.  Stage 2 only adds `requests`.
 
+📖 **Long-form context:** [why I built this](docs/why.md) · [retrospective](docs/retrospective.md)
+
+## Screenshots
+
+The bundled web UI (`python -m phish_triage.web`, see
+[Sample tester](#sample-tester-web-ui) below) lets you drop in any `.eml`
+and see the verdict, signals, IOCs, and reasoning side-by-side.
+
+|   |   |
+|---|---|
+| **Home page — upload or pick a sample**<br>![home page](docs/screenshots/01-home.png) | **Phish sample → MALICIOUS 100/100**<br>![phish report](docs/screenshots/02-phish-report.png) |
+| **Benign sample → BENIGN 0/100 (no false positives)**<br>![benign report](docs/screenshots/03-benign-report.png) | **CLI session — same toolkit, terminal-first**<br>![cli session](docs/screenshots/04-cli-session.png) |
+
 ## Architecture
 
 ```
@@ -68,6 +81,23 @@ phish-triage enrich tests/fixtures/phish_sample.eml --output report.md
 # run the test suite
 pytest -q
 ```
+
+## Sample tester (web UI)
+
+```bash
+pip install -e ".[web]"
+python -m phish_triage.web
+# open http://127.0.0.1:5050
+```
+
+A single-file Flask app under `src/phish_triage/web/` that lets you upload
+any `.eml` or click one of the bundled samples and see the parsed signals,
+IOCs, verdict, and rationale rendered as cards.
+
+> ⚠️  The web demo runs the parser + scorer **locally only** — VirusTotal and
+> AbuseIPDB are intentionally skipped so the page is safe to share without
+> exposing API keys or burning quota.  Add keys back via the CLI
+> (`phish-triage enrich …`) when you want the full pipeline.
 
 ## Sample output
 
@@ -160,29 +190,38 @@ phish-triage/
 │   ├── __init__.py
 │   ├── parser.py       Stage 1 — stdlib-only parser
 │   ├── enrich.py       Stage 2 — VT + AbuseIPDB + scoring
-│   └── cli.py          argparse front-end (phish-triage parse|enrich)
+│   ├── cli.py          argparse front-end (phish-triage parse|enrich)
+│   └── web/            Stage 4 — single-file Flask sample tester
+│       ├── __init__.py
+│       ├── __main__.py
+│       ├── templates/{index,report}.html
+│       └── static/style.css
 ├── tests/
 │   ├── fixtures/
 │   │   ├── benign.eml          regenerated from make_fixtures.py
 │   │   └── phish_sample.eml
 │   ├── make_fixtures.py        no real malware — only signal patterns
 │   ├── test_parser.py          9 cases
-│   └── test_enrich.py          11 cases, HTTP fully mocked
+│   ├── test_enrich.py          11 cases, HTTP fully mocked
+│   └── test_web.py             4 cases — Flask test client
 ├── detections/
 │   ├── spl/                     R01-R08 (.spl)
 │   ├── sigma/                   R01-R08 (.yml, uuid4 ids, MITRE tags)
 │   └── README.md                signal → rule → ATT&CK mapping
 ├── docs/
+│   ├── why.md                              why I built this
+│   ├── retrospective.md                    what worked, what bit me
 │   ├── stage1-parsing-walkthrough.md
 │   ├── stage2-enrichment-walkthrough.md
-│   └── stage3-detection-engineering.md
+│   ├── stage3-detection-engineering.md
+│   └── screenshots/                        README image assets
 └── pyproject.toml
 ```
 
 ## Testing
 
 ```bash
-pytest -q          # 20 tests, all green, no live API calls
+pytest -q          # 28 tests, all green, no live API calls
 ```
 
 The enrichment tests use `unittest.mock.patch` against

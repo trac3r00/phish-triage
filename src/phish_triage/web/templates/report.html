@@ -1,0 +1,120 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>phish-triage report — {{ parsed.subject or '(no subject)' }}</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+  <header>
+    <h1>phish&#8209;triage</h1>
+    <span class="tag">{{ source_label }}</span>
+    <nav>
+      <a href="{{ url_for('index') }}">&larr; analyze another</a>
+      <a href="https://github.com/trac3r00/phish-triage" target="_blank">GitHub</a>
+    </nav>
+  </header>
+
+  <main>
+    <div class="verdict {{ verdict_class }}">
+      <div class="score">{{ result.score }}<small style="display:block;font-size:13px;color:var(--muted);font-family:var(--mono)">/ 100</small></div>
+      <div class="label">
+        {{ result.verdict | upper }}
+        <small>{{ parsed.subject or '(no subject)' }}</small>
+      </div>
+    </div>
+
+    <div class="card">
+      <h2>Message</h2>
+      <dl class="meta">
+        <dt>From</dt>      <dd>{{ parsed.from_header or 'n/a' }}</dd>
+        <dt>Reply-To</dt>  <dd>{{ parsed.reply_to_header or 'n/a' }}</dd>
+        <dt>To</dt>        <dd>{{ parsed.to_header or 'n/a' }}</dd>
+        <dt>Date</dt>      <dd>{{ parsed.date or 'n/a' }}</dd>
+        <dt>Message-ID</dt><dd>{{ parsed.message_id or 'n/a' }}</dd>
+      </dl>
+    </div>
+
+    <div class="card">
+      <h2>Authentication</h2>
+      <table>
+        <tr><th>mechanism</th><th>result</th></tr>
+        <tr><td>SPF</td><td>{{ parsed.auth_results.spf }}</td></tr>
+        <tr><td>DKIM</td><td>{{ parsed.auth_results.dkim }}</td></tr>
+        <tr><td>DMARC</td><td>{{ parsed.auth_results.dmarc }}</td></tr>
+      </table>
+    </div>
+
+    <div class="card">
+      <h2>Signals</h2>
+      {% if parsed.signals %}
+      <div class="pills">
+        {% for s in parsed.signals %}<span class="pill">{{ s }}</span>{% endfor %}
+      </div>
+      {% else %}
+      <p style="color:var(--green);font-family:var(--mono);margin:0">no suspicious signals fired</p>
+      {% endif %}
+    </div>
+
+    <div class="card">
+      <h2>IOCs</h2>
+      <table>
+        <tr><th>type</th><th>value</th><th>notes</th></tr>
+        {% for i in range(parsed.urls | length) %}
+        <tr><td>url</td><td>{{ parsed.urls_defanged[i] }}</td><td>{{ parsed.urls[i] }}</td></tr>
+        {% endfor %}
+        {% for a in parsed.attachments %}
+        <tr><td>file</td><td>{{ a.filename }}</td><td>sha256 {{ a.sha256[:16] }}… · {{ a.size }} bytes</td></tr>
+        {% endfor %}
+        {% for hop in parsed.received_chain if hop.from_ip and not hop.private_ip %}
+        <tr><td>ip</td><td>{{ hop.from_ip }}</td><td>Received hop #{{ hop.index }}</td></tr>
+        {% endfor %}
+      </table>
+    </div>
+
+    <div class="card">
+      <h2>Received chain (origin → recipient)</h2>
+      <table>
+        <tr><th>#</th><th>from host</th><th>from ip</th><th>by</th><th>private?</th></tr>
+        {% for hop in parsed.received_chain %}
+        <tr>
+          <td>{{ hop.index }}</td>
+          <td>{{ hop.from_host or '-' }}</td>
+          <td>{{ hop.from_ip or '-' }}</td>
+          <td>{{ hop.by_host or '-' }}</td>
+          <td>{{ hop.private_ip }}</td>
+        </tr>
+        {% endfor %}
+      </table>
+      <p class="note" style="margin-top:10px">
+        Private &rarr; public anomaly: <strong>{{ parsed.received_anomaly_private_to_public }}</strong>
+      </p>
+    </div>
+
+    <div class="card">
+      <h2>Why this verdict</h2>
+      {% if result.rationale %}
+      <ul class="rationale">
+        {% for r in result.rationale %}<li>{{ r }}</li>{% endfor %}
+      </ul>
+      {% else %}
+      <p style="color:var(--green);font-family:var(--mono);margin:0">no signals contributed to a verdict</p>
+      {% endif %}
+      {% if result.notes %}
+      <p class="note" style="margin-top:14px">
+        {% for n in result.notes %}{{ n }}<br>{% endfor %}
+      </p>
+      {% endif %}
+    </div>
+
+    <div class="card">
+      <h2>Raw markdown report (what the CLI prints)</h2>
+      <pre class="markdown">{{ markdown }}</pre>
+    </div>
+  </main>
+
+  <footer>
+    <a href="{{ url_for('index') }}">&larr; analyze another email</a>
+  </footer>
+</body>
+</html>

@@ -10,9 +10,9 @@ Received: from mail.example.com (mail.example.com [203.0.113.10]) by
  mx.corp.example with ESMTPS id ABCDEF; Tue, 10 Jun 2026 12:00:01 +0000
 MIME-Version: 1.0
 Content-Type: multipart/alternative;
- boundary="===============4060148390530673789=="
+ boundary="===============2598612004418552036=="
 
---===============4060148390530673789==
+--===============2598612004418552036==
 Content-Type: text/plain; charset="utf-8"
 Content-Transfer-Encoding: 7bit
 
@@ -23,7 +23,7 @@ Your invoice for May is attached.
 Thanks,
 Billing
 
---===============4060148390530673789==
+--===============2598612004418552036==
 Content-Type: text/html; charset="utf-8"
 Content-Transfer-Encoding: quoted-printable
 MIME-Version: 1.0
@@ -31,4 +31,4 @@ MIME-Version: 1.0
 <html><body><p>Hi Alice,</p><p>Your invoice for May is on the <a href=3D"http=
 s://example.com/invoice/123">portal</a>.</p></body></html>
 
---===============4060148390530673789==--
+--===============2598612004418552036==--

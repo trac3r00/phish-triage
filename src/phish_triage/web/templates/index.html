@@ -1,0 +1,68 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>phish-triage — sample tester</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+  <header>
+    <h1>phish&#8209;triage</h1>
+    <span class="tag">phishing email triage toolkit · sample tester</span>
+    <nav>
+      <a href="https://github.com/trac3r00/phish-triage" target="_blank">GitHub</a>
+      <a href="https://github.com/trac3r00/phish-triage#readme" target="_blank">Docs</a>
+    </nav>
+  </header>
+
+  <main>
+    <div class="card">
+      <h2>Upload an .eml file</h2>
+      <form action="{{ url_for('analyze') }}" method="post" enctype="multipart/form-data">
+        <div class="upload-row">
+          <input type="file" name="eml" accept=".eml,message/rfc822" required>
+          <button type="submit">Analyze</button>
+        </div>
+        <p class="note">
+          Runs the Stage&nbsp;1 parser + the Stage&nbsp;2 scorer locally. <strong>No external API calls</strong> are made
+          from this demo &mdash; VirusTotal / AbuseIPDB are skipped so the page is safe to share.
+          Max upload size: 1&nbsp;MB.
+        </p>
+      </form>
+    </div>
+
+    <div class="card">
+      <h2>or try a bundled sample</h2>
+      <div class="samples">
+        {% for sample in samples %}
+        <form action="{{ url_for('analyze') }}" method="post">
+          <input type="hidden" name="sample" value="{{ sample }}">
+          <button type="submit" class="secondary">{{ sample }}</button>
+        </form>
+        {% else %}
+        <p class="note">No samples found under <code>tests/fixtures/</code>. Run <code>python -m tests.make_fixtures</code> first.</p>
+        {% endfor %}
+      </div>
+      <p class="note">
+        <code>benign.eml</code> is a routine invoice that passes SPF/DKIM/DMARC.
+        <code>phish_sample.eml</code> is a synthetic phish that fires every signal the parser knows about
+        (no real malware &mdash; the fixture is built from inert text by <code>tests/make_fixtures.py</code>).
+      </p>
+    </div>
+
+    <div class="card">
+      <h2>What you'll see</h2>
+      <p style="font-size:14px;color:var(--muted);margin:0">
+        A verdict card (<strong>benign / suspicious / malicious</strong>), the parsed authentication results, every
+        suspicious signal as a pill, an IOC table (defanged URLs, hashed attachments, public Received-chain IPs), the
+        scoring rationale, and the raw markdown report the CLI would print to stdout.
+      </p>
+    </div>
+  </main>
+
+  <footer>
+    <span>Built by <a href="https://github.com/trac3r00" target="_blank">trac3r00</a>.
+      Source: <a href="https://github.com/trac3r00/phish-triage" target="_blank">github.com/trac3r00/phish-triage</a></span>
+  </footer>
+</body>
+</html>
