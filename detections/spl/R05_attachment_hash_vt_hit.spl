@@ -1,0 +1,11 @@
+# Rule R05: Inbound attachment hash matches a known-malicious VT score.
+# Sourcetypes: email gateway / EDR that records the file_hash + a VT enrichment
+# field (or a lookup against a threat-intel index `ti_vt`).
+# MITRE ATT&CK: T1566.001 (Spearphishing Attachment).
+
+index=email sourcetype=email:* attachment_sha256=*
+| lookup ti_vt sha256 AS attachment_sha256 OUTPUT vt_malicious AS vt_malicious
+| where isnotnull(vt_malicious) AND vt_malicious >= 1
+| stats values(attachment_filename) as attachments, max(vt_malicious) as vt_malicious,
+        count by _time, recipient, sender, attachment_sha256
+| sort - _time

@@ -1,0 +1,12 @@
+# Rule R07: Base64-encoded HTML body containing a <form> element.
+# Pattern: attacker base64-encodes the HTML body of the email to evade gateway
+# string-match rules; the decoded payload contains a credential-harvesting form.
+# Sourcetypes: email gateway with body_decoded field (or our phish-triage
+# enrichment index that stores parsed body content).
+# MITRE ATT&CK: T1027 (Obfuscated Files or Information), T1566.001 / T1566.002.
+
+index=email sourcetype=email:* mime_encoding=base64 content_type=text/html
+| where like(body_decoded, "%<form%") OR like(body_decoded, "%<FORM%")
+| eval has_password=if(match(body_decoded,"(?i)<input[^>]+type=[\"']?password"),1,0)
+| stats count by _time, recipient, sender, content_type, has_password
+| sort - _time

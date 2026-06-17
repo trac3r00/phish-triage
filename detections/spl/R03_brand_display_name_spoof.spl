@@ -1,0 +1,25 @@
+# Rule R03: Brand / executive display-name impersonation.
+# Display name contains a high-value brand keyword (or a VIP exec name) while
+# the addr-spec domain does NOT belong to that brand. Catches the classic
+# "Brand Support <attacker@random.tld>" pattern.
+# MITRE ATT&CK: T1656 (Impersonation), T1566.001 / T1566.002.
+
+index=email sourcetype=email:*
+| rex field=from_addr "(?<from_display>^[^<]*)<(?<from_email>[^>]+)>"
+| eval from_display=lower(trim(coalesce(from_display, from_addr)))
+| eval from_domain=lower(mvindex(split(from_email,"@"),1))
+| eval is_brand=if(match(from_display,"(?i)(paypal|microsoft|apple|google|amazon|irs|chase|wells\s?fargo|bank of america|dhl|fedex|ceo|cfo)"),1,0)
+| eval brand_in_domain=case(
+        like(from_display,"%paypal%"),     if(match(from_domain,"paypal\.com$"),1,0),
+        like(from_display,"%microsoft%"),  if(match(from_domain,"microsoft\.com$"),1,0),
+        like(from_display,"%apple%"),      if(match(from_domain,"apple\.com$"),1,0),
+        like(from_display,"%google%"),     if(match(from_domain,"google\.com$"),1,0),
+        like(from_display,"%amazon%"),     if(match(from_domain,"amazon\.com$"),1,0),
+        like(from_display,"%irs%"),        if(match(from_domain,"irs\.gov$"),1,0),
+        like(from_display,"%chase%"),      if(match(from_domain,"chase\.com$"),1,0),
+        like(from_display,"%dhl%"),        if(match(from_domain,"dhl\.com$"),1,0),
+        like(from_display,"%fedex%"),      if(match(from_domain,"fedex\.com$"),1,0),
+        true(), 0)
+| where is_brand=1 AND brand_in_domain=0
+| stats count by _time, recipient, from_display, from_email, from_domain
+| sort - _time

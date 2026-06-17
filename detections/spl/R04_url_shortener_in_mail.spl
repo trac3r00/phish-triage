@@ -1,0 +1,14 @@
+# Rule R04: URL shortener in inbound email — used to mask the real landing page.
+# Sourcetypes: email gateway OR proxy URL extraction (bro/zeek http, Symantec
+# WSS, Zscaler). We pivot on extracted_url from the email-gateway side.
+# MITRE ATT&CK: T1566.002 (Spearphishing Link), T1204.001 (User Execution: Link).
+
+index=email sourcetype=email:* extracted_url=*
+| rex field=extracted_url "https?://(?<url_host>[^/]+)"
+| eval url_host=lower(url_host)
+| eval is_shortener=case(
+        match(url_host,"^(bit\.ly|tinyurl\.com|t\.co|goo\.gl|ow\.ly|is\.gd|buff\.ly|cutt\.ly|rebrand\.ly|short\.io|adf\.ly)$"), 1,
+        true(), 0)
+| where is_shortener=1
+| stats values(extracted_url) as urls, count by _time, recipient, sender, url_host
+| sort - _time

@@ -1,0 +1,18 @@
+# Rule R02: Newly-observed sender domain combined with authentication failure.
+# Looks for sender domains never seen by the org in the last 30 days that
+# arrive with SPF, DKIM, or DMARC fail. Rolling baseline keeps FP down.
+# MITRE ATT&CK: T1566 (Phishing) — initial access from novel infrastructure.
+
+index=email sourcetype=email:*
+        (authentication_results=*spf=fail* OR
+         authentication_results=*dkim=fail* OR
+         authentication_results=*dmarc=fail*)
+| eval sender_domain=lower(mvindex(split(sender,"@"),1))
+| where isnotnull(sender_domain)
+| join type=left sender_domain
+    [ search index=email earliest=-30d@d latest=-1d@d
+      | eval sender_domain=lower(mvindex(split(sender,"@"),1))
+      | stats earliest(_time) as first_seen by sender_domain ]
+| where isnull(first_seen)
+| stats count by _time, recipient, sender, sender_domain, authentication_results
+| sort - _time

@@ -1,0 +1,17 @@
+# Rule R08: DMARC reject bypass attempt — DMARC policy says reject but the
+# message was delivered (auth_results=dmarc=fail policy.disposition=none) OR
+# the From domain has a known p=reject policy yet the email landed.
+# Sourcetypes: email gateway logs that record dmarc_policy + final_disposition.
+# MITRE ATT&CK: T1566 (Phishing), T1078 (Valid Accounts — when chained with BEC).
+
+index=email sourcetype=email:* (authentication_results=*dmarc=fail*)
+| rex field=authentication_results "dmarc=fail[^;]*?(policy\.\w+=(?<dmarc_policy>\w+))?"
+| eval dmarc_policy=coalesce(dmarc_policy, "unknown")
+| eval bypass=case(
+        match(dmarc_policy,"(?i)reject") AND final_disposition!="quarantine"
+            AND final_disposition!="reject", 1,
+        match(dmarc_policy,"(?i)quarantine") AND final_disposition="delivered", 1,
+        true(), 0)
+| where bypass=1
+| stats count by _time, recipient, sender, dmarc_policy, final_disposition
+| sort - _time

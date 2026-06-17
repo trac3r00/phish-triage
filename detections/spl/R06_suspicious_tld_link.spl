@@ -1,0 +1,16 @@
+# Rule R06: Suspicious / disposable TLD link in inbound email.
+# Targets TLDs Google flagged as high-risk for phishing (.zip, .mov, .top,
+# .country, .xyz, .click, .support, .quest) — esp. when the registrable
+# domain is also brand-themed.
+# MITRE ATT&CK: T1566.002, T1583.001 (Acquire Infrastructure: Domains).
+
+index=email sourcetype=email:* extracted_url=*
+| rex field=extracted_url "https?://(?<url_host>[^/]+)"
+| eval url_host=lower(url_host)
+| rex field=url_host "(?<url_tld>\.[a-z]+)$"
+| eval is_sus_tld=case(
+        match(url_tld,"^(\.zip|\.mov|\.top|\.country|\.xyz|\.click|\.support|\.quest|\.lol)$"), 1,
+        true(), 0)
+| where is_sus_tld=1
+| stats values(extracted_url) as urls, count by _time, recipient, sender, url_host, url_tld
+| sort - _time

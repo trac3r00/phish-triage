@@ -1,0 +1,30 @@
+title: Base64-encoded HTML body containing a form
+id: 5b3a1d40-6c0a-4f31-8d8a-2c2b9f1c0a07
+status: experimental
+description: >
+  An inbound email body part was transfer-encoded base64 AND the decoded
+  HTML contains a <form> element (especially with a <input type="password">).
+  Common evasion + credential-harvesting pattern.
+references:
+  - https://attack.mitre.org/techniques/T1027/
+  - https://attack.mitre.org/techniques/T1566/001/
+author: trac3r00 (phish-triage)
+date: 2026-06-16
+logsource:
+  product: email
+  category: email-gateway
+detection:
+  encoded_html:
+    mime_encoding: base64
+    content_type: text/html
+  has_form:
+    body_decoded|contains: '<form'
+  condition: encoded_html and has_form
+falsepositives:
+  - Legitimate marketing HTML with unsubscribe forms (allowlist by sender).
+level: medium
+tags:
+  - attack.defense_evasion
+  - attack.t1027
+  - attack.initial_access
+  - attack.t1566.001

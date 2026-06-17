@@ -1,0 +1,38 @@
+title: URL shortener observed in inbound email
+id: 5b3a1d40-6c0a-4f31-8d8a-2c2b9f1c0a04
+status: experimental
+description: >
+  Inbound email body contains at least one well-known URL shortener host.
+  Shorteners are routinely used by phishing crews to mask the real
+  credential-harvesting landing page from gateway URL reputation.
+references:
+  - https://attack.mitre.org/techniques/T1566/002/
+  - https://attack.mitre.org/techniques/T1204/001/
+author: trac3r00 (phish-triage)
+date: 2026-06-16
+logsource:
+  product: email
+  category: email-gateway
+detection:
+  shortener_host:
+    url_host:
+      - bit.ly
+      - tinyurl.com
+      - t.co
+      - goo.gl
+      - ow.ly
+      - is.gd
+      - buff.ly
+      - cutt.ly
+      - rebrand.ly
+      - short.io
+      - adf.ly
+  condition: shortener_host
+falsepositives:
+  - Legitimate Twitter / X newsletters using t.co.
+  - Marketing campaigns that route everything through a tracker shortener.
+level: medium
+tags:
+  - attack.initial_access
+  - attack.t1566.002
+  - attack.t1204.001

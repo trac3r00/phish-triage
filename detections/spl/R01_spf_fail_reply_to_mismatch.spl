@@ -1,0 +1,18 @@
+# Rule R01: SPF fail + From/Reply-To domain mismatch.
+# Sourcetypes: assumes secure email gateway logs (e.g. Proofpoint, Mimecast,
+# O365 message trace, or a normalised CIM-compliant email index) where each
+# event carries fields: sender (smtp.mailfrom / 5321.MailFrom), from_addr
+# (5322.From), reply_to_addr, authentication_results, recipient.
+#
+# MITRE ATT&CK: T1566.001 (Phishing: Spearphishing Attachment),
+# T1566.002 (Phishing: Spearphishing Link) — both rely on identity spoofing
+# that SPF + Reply-To divergence helps surface.
+
+index=email sourcetype=email:* authentication_results=*spf=fail*
+| eval from_domain=lower(mvindex(split(from_addr,"@"),1))
+| eval reply_to_domain=lower(mvindex(split(reply_to_addr,"@"),1))
+| where isnotnull(from_domain) AND isnotnull(reply_to_domain)
+        AND from_domain!=reply_to_domain
+| stats count by _time, recipient, from_addr, reply_to_addr,
+                  from_domain, reply_to_domain, authentication_results
+| sort - _time
