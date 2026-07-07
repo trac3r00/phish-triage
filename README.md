@@ -1,5 +1,11 @@
 # phish-triage
 
+[![Python](https://img.shields.io/badge/python-3.11+-blue.svg)](https://www.python.org/)
+[![License: MIT](https://img.shields.io/badge/license-MIT-green.svg)](LICENSE)
+[![MITRE ATT&CK](https://img.shields.io/badge/MITRE%20ATT%26CK-mapped-red.svg)](https://attack.mitre.org/)
+[![Detections](https://img.shields.io/badge/detections-Sigma%20%2B%20Splunk%20SPL-orange.svg)](detections/)
+[![Tests](https://img.shields.io/badge/tests-28%20passing-brightgreen.svg)](tests/)
+
 A small, batteries-included **phishing email triage toolkit** for SOC analysts
 and detection engineers.
 
@@ -32,28 +38,15 @@ and see the verdict, signals, IOCs, and reasoning side-by-side.
 
 ## Architecture
 
-```
-            ┌─────────────────────────────┐
-  .eml ───► │ Stage 1: parser.py (stdlib) │ ──► JSON / markdown summary
-            └────────────┬────────────────┘
-                         │ ParsedEmail
-                         ▼
-            ┌─────────────────────────────┐
-            │ Stage 2: enrich.py          │
-            │  • VirusTotal v3 (URLs,     │ ──► markdown triage report
-            │    file hashes)             │      (summary + IOC table +
-            │  • AbuseIPDB (Rx-chain IPs) │       enrichment + verdict)
-            │  • rate limit + cache       │
-            │  • weighted scorer          │
-            └────────────┬────────────────┘
-                         │ EnrichmentResult
-                         ▼
-            ┌─────────────────────────────┐
-            │ Stage 3: detections/        │
-            │  • 8 SPL queries            │ ──► drop into Splunk / SIEM
-            │  • 8 Sigma rules            │
-            │  • MITRE ATT&CK mapping     │
-            └─────────────────────────────┘
+```mermaid
+flowchart TD
+    EML([".eml"])
+    EML --> S1["Stage 1 · parser.py (stdlib)<br/>SPF/DKIM/DMARC · From vs Reply-To<br/>Received chain · URLs · attachment hashes"]
+    S1 --> OUT1["JSON / markdown summary"]
+    S1 -->|ParsedEmail| S2["Stage 2 · enrich.py<br/>VirusTotal v3 (URLs, file hashes)<br/>AbuseIPDB (Rx-chain IPs)<br/>rate limit + cache · weighted scorer"]
+    S2 --> OUT2["Markdown triage report<br/>(summary + IOC table + verdict)"]
+    S2 -->|EnrichmentResult| S3["Stage 3 · detections/<br/>8 Splunk SPL queries<br/>8 Sigma rules · MITRE ATT&CK mapping"]
+    S3 --> OUT3["Drop into Splunk / SIEM"]
 ```
 
 ## Quickstart
@@ -203,7 +196,7 @@ phish-triage/
 │   ├── make_fixtures.py        no real malware — only signal patterns
 │   ├── test_parser.py          9 cases
 │   ├── test_enrich.py          11 cases, HTTP fully mocked
-│   └── test_web.py             4 cases — Flask test client
+│   └── test_web.py             8 cases — Flask test client
 ├── detections/
 │   ├── spl/                     R01-R08 (.spl)
 │   ├── sigma/                   R01-R08 (.yml, uuid4 ids, MITRE tags)
