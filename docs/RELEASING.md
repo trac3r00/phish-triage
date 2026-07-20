@@ -1,45 +1,72 @@
-# Release & Merge Policy — phish-triage
+# Release and merge policy
 
-이 문서는 언제 PR을 merge하고, 언제 릴리스를 자르고, hotfix가 어떻게 흐르는지 정의한다.
-"CI green"은 필요조건이지 충분조건이 아니다.
+This document defines the repository's merge and release requirements. A passing test run is necessary but does not replace review of scope, documentation, and release impact.
 
-## 필수 merge 게이트 (Required merge gates)
+## Current release surfaces
 
-PR은 다음이 **모두** 성립할 때만 merge:
+- Package version: `project.version` in `pyproject.toml`.
+- Runtime version output: `__version__` in `src/phish_triage/__init__.py`.
+- Distribution build backend: setuptools.
+- Automated CI or release workflow: none currently present.
+- Changelog: none currently present.
 
-1. **최신 커밋에서 CI green** (이전 커밋 아님).
-2. **PR 본문 완비** — 연결 이슈, Why 섹션, 검증 증거. Why 비면 CI 무관하게 merge 불가.
-3. **검증 증거.** 가장 작은 관련 명령 출력 또는 CI 증거. UI/route 변경은 수동 검증도.
-4. **PR 하나 = 논리적 변경 하나.** 기능+무관 리팩터 섞이면 쪼갠다.
-5. **배치 soak 규칙** (배포 자동화 repo): 배포 유발 PR은 15분에 하나만. docs/CI-only는 자유.
+Keep the two version declarations synchronized until the project adopts a single version source.
 
-## main 직접 push
+## Merge gates
 
-허용 안 됨 (owner·자동화 포함). broken-main 긴급 상황만 예외 — 24h 내 회고 이슈.
+A pull request is ready to merge only when all applicable conditions are met:
 
-## 릴리스 정책 (Release policy)
+1. The pull request has one coherent purpose and does not mix unrelated refactoring.
+2. The description explains the reason for the change, links relevant issues, and includes verification evidence.
+3. `pytest` passes on the exact commit being reviewed after installing `.[dev,web]`.
+4. User-facing behavior and documentation agree.
+5. Interface or route changes have direct usage evidence in addition to automated tests.
+6. Security-related failures are resolved rather than waived.
+7. Version, migration, rollback, and release-note impact are explicitly assessed.
 
-- **언제 tag:** 의미 있는 사용자 대면 마일스톤(새 기능, 큰 UX 변화, 보안 수정) 후, 또는 최대 ~2주 누적. 순수 의존성 churn은 릴리스 사유 아님.
-- **버전 (SemVer):** breaking = major, 새 기능 = minor, 수정/deps = patch. **같은 주 minor 남발 = version inflation.**
-- **changelog:** tag 전 갱신. 사용자 관점으로 — 버전/날짜 헤드라인, Features/Fixes/Dependencies/Docs 그룹.
-- **release notes:** merge된 PR 제목 + changelog에서 생성. 각 줄에 PR 링크.
-- **tags:** pre-tag 체크 통과한 정확한 SHA에 `vX.Y.Z`.
-- **pre-tag 체크:** `pytest` — 정확한 tag SHA에서 로컬 또는 CI.
+If CI is added later, required checks must pass on the current commit. Until then, local command output is the available test evidence.
 
-### 릴리스 vs 머지-only
+## Branch and commit policy
 
-- **릴리스 관리 repo** (tag/release 있음): merge 후 PR 쌓아서 릴리스로 끊는다. main 방류 ❌. → `release-train` 패턴.
-- **릴리스 안 하는 repo** (tag 0): merge만.
-- **핫픽스(보안/버그):** 즉시 merge, 필요시 patch 릴리스.
+- Do not push directly to `main`; use a pull request.
+- Use one branch per task with a descriptive prefix such as `feat/`, `fix/`, `docs/`, `test/`, `refactor/`, or `chore/`.
+- Use Conventional Commit subjects.
+- Do not force-push without explicit approval.
+- Do not commit credentials, local environment files, caches, or generated build artifacts.
+- Write pull request, issue, review, commit, and release text in English.
 
-## Hotfix flow
+## Versioning
 
-1. `hotfix/<slug>` 브랜치 (main에서).
-2. PR + 템플릿 (Why = 인시던트 설명 + 증거).
-3. 단독 merge (배치 ❌), 배포 완료까지 확인.
-4. 배포 실패 시 revert 먼저, 진단 나중.
+The project follows Semantic Versioning:
 
-## Rollback
+- patch: backward-compatible defect or documentation correction;
+- minor: backward-compatible user-facing functionality;
+- major: incompatible public behavior, interface, or data-format change.
 
-- 우선: PR 통한 `git revert` (히스토리 보존, CI/배포 재실행).
-- 앵커: 릴리스 tag = known-good. `gh release list`로 마지막 확인.
+A documentation-only change normally has no version impact unless it corrects documentation packaged in an imminent release and the maintainer chooses to issue a patch.
+
+## Release checklist
+
+Before creating a release:
+
+1. Confirm the target commit contains the intended changes and no unrelated files.
+2. Update both version declarations.
+3. Prepare concise user-facing release notes. If a changelog is introduced, update it in the same pull request.
+4. Install development and web dependencies and run the tests:
+
+   ```bash
+   python -m pip install -e ".[dev,web]"
+   pytest
+   ```
+
+5. Build the source distribution and wheel with an independently installed PEP 517 frontend, then inspect the artifacts. The project does not currently declare `build` as a dependency.
+6. Verify `phish-triage --version`, parser output, enrichment without keys, and the local web health endpoint from the built artifact or an equivalent clean environment.
+7. Tag the exact reviewed commit as `vX.Y.Z` and publish notes that match that tag.
+
+Do not describe a release as CI-verified while the repository has no CI workflow.
+
+## Hotfixes and rollback
+
+Use a `hotfix/<name>` branch for urgent defects. Keep the change minimal, run the same applicable gates, and issue a patch release when users need the correction immediately.
+
+Prefer a pull request containing `git revert` to roll back a merged change. This preserves history and allows the normal verification path to run. A release tag can identify a known version, but it does not replace a reviewed rollback commit.

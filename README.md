@@ -1,233 +1,186 @@
 # phish-triage
 
-[![Python](https://img.shields.io/badge/python-3.11+-blue.svg)](https://www.python.org/)
-[![License: MIT](https://img.shields.io/badge/license-MIT-green.svg)](LICENSE)
-[![MITRE ATT&CK](https://img.shields.io/badge/MITRE%20ATT%26CK-mapped-red.svg)](https://attack.mitre.org/)
-[![Detections](https://img.shields.io/badge/detections-Sigma%20%2B%20Splunk%20SPL-orange.svg)](detections/)
-[![Tests](https://img.shields.io/badge/tests-28%20passing-brightgreen.svg)](tests/)
+Parse phishing email files, enrich indicators, and produce analyst-oriented reports and detection content.
 
-A small, batteries-included **phishing email triage toolkit** for SOC analysts
-and detection engineers.
+[![Python 3.11+](https://img.shields.io/badge/Python-3.11%2B-3776AB?logo=python&logoColor=white)](https://www.python.org/)
+[![License: MIT](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
 
-Feed it a single `.eml` file; get back:
+## Overview
 
-1. A **deterministic parse** of every signal that matters — SPF/DKIM/DMARC,
-   From vs Reply-To & display-name spoofing, Received-chain anomalies, URLs
-   (defanged), attachments with cryptographic hashes.
-2. **External enrichment** (VirusTotal v3 + AbuseIPDB free-tier) gated by a
-   built-in rate limiter and an on-disk cache.
-3. A **weighted 0-100 verdict** (`benign` / `suspicious` / `malicious`) and a
-   plain-language rationale.
-4. **Eight production-style detections** — Splunk SPL + Sigma — mapped to
-   MITRE ATT&CK, that fire on the same signals the tool surfaces.
+`phish-triage` is a Python toolkit for examining a single RFC 5322 `.eml` file. It extracts authentication results, sender inconsistencies, delivery-chain details, URLs, and attachment hashes. The optional enrichment command checks URLs and attachment hashes with VirusTotal and public delivery-chain IPv4 addresses with AbuseIPDB, then calculates a deterministic score and renders a report.
 
-> ⚙️  Stage 1 is **pure Python 3.11 stdlib**.  Stage 2 only adds `requests`.
+The repository also includes a local Flask interface, inert sample messages, and example Splunk SPL and Sigma detection rules. The detection rules are deployment templates with their own gateway-field assumptions; they are not executed by the CLI.
 
-📖 **Long-form context:** [why I built this](docs/why.md) · [retrospective](docs/retrospective.md)
+## Features
+
+- Parses SPF, DKIM, and DMARC results from `Authentication-Results` headers.
+- Compares `From` and `Reply-To` addresses and checks selected brand names in the sender display name.
+- orders `Received` headers from origin to recipient and identifies private-to-public transitions.
+- extracts and defangs URLs from decoded `text/*` MIME parts.
+- records attachment metadata and MD5, SHA-1, and SHA-256 hashes.
+- queries VirusTotal for URLs and attachment SHA-256 hashes.
+- Queries AbuseIPDB for non-private dotted-quad address values found in the `Received` chain.
+- caches enrichment responses and produces JSON or Markdown output.
+- assigns `benign`, `suspicious`, or `malicious` verdicts using documented weights.
+- provides a local web interface and eight example rules in both SPL and Sigma formats.
 
 ## Screenshots
 
-The bundled web UI (`python -m phish_triage.web`, see
-[Sample tester](#sample-tester-web-ui) below) lets you drop in any `.eml`
-and see the verdict, signals, IOCs, and reasoning side-by-side.
-
-|   |   |
+| | |
 |---|---|
-| **Home page — upload or pick a sample**<br>![home page](docs/screenshots/01-home.png) | **Phish sample → MALICIOUS 100/100**<br>![phish report](docs/screenshots/02-phish-report.png) |
-| **Benign sample → BENIGN 0/100 (no false positives)**<br>![benign report](docs/screenshots/03-benign-report.png) | **CLI session — same toolkit, terminal-first**<br>![cli session](docs/screenshots/04-cli-session.png) |
+| **Home page**<br>![Web interface home page](docs/screenshots/01-home.png) | **Phishing sample report**<br>![Phishing sample report](docs/screenshots/02-phish-report.png) |
+| **Benign sample report**<br>![Benign sample report](docs/screenshots/03-benign-report.png) | **CLI session**<br>![CLI session](docs/screenshots/04-cli-session.png) |
 
 ## Architecture
 
-```mermaid
-flowchart TD
-    EML([".eml"])
-    EML --> S1["Stage 1 · parser.py (stdlib)<br/>SPF/DKIM/DMARC · From vs Reply-To<br/>Received chain · URLs · attachment hashes"]
-    S1 --> OUT1["JSON / markdown summary"]
-    S1 -->|ParsedEmail| S2["Stage 2 · enrich.py<br/>VirusTotal v3 (URLs, file hashes)<br/>AbuseIPDB (Rx-chain IPs)<br/>rate limit + cache · weighted scorer"]
-    S2 --> OUT2["Markdown triage report<br/>(summary + IOC table + verdict)"]
-    S2 -->|EnrichmentResult| S3["Stage 3 · detections/<br/>8 Splunk SPL queries<br/>8 Sigma rules · MITRE ATT&CK mapping"]
-    S3 --> OUT3["Drop into Splunk / SIEM"]
+```text
+                         +----------------------+
+.eml file -------------->| parser.py            |
+                         | headers, MIME, IOCs   |
+                         +----------+-----------+
+                                    |
+                         +----------+-----------+
+                         |                      |
+                         v                      v
+                 JSON / Markdown        enrich.py
+                 parser output          VT + AbuseIPDB + cache
+                                                |
+                                                v
+                                      JSON / Markdown report
+
+Local web UI -> parser.py -> enrich.py -> HTML report
+
+detections/ contains independent SPL and Sigma deployment templates.
 ```
 
-## Quickstart
+`parser.py` uses only the Python standard library. The installed package includes `requests` for enrichment. Flask is available through the `web` optional dependency.
+
+## Installation
+
+Python 3.11 or later is required.
 
 ```bash
-git clone https://github.com/trac3r00/phish-triage.git
+git clone https://github.com/Trac3r00/phish-triage.git
 cd phish-triage
-python3.11 -m venv .venv && source .venv/bin/activate
-pip install -e ".[dev]"
-
-# regenerate the sample fixtures (safe: no real malware)
-python -m tests.make_fixtures
-
-# Stage 1 — parse a .eml, print JSON
-phish-triage parse tests/fixtures/phish_sample.eml --json
-
-# Stage 1 — same email, markdown summary
-phish-triage parse tests/fixtures/phish_sample.eml --markdown
-
-# Stage 2 — parse + enrich (uses env vars; missing keys degrade gracefully)
-export VT_API_KEY=<your-vt-key>          # https://www.virustotal.com/gui/my-apikey
-export ABUSEIPDB_API_KEY=<your-abuse-key>   # https://www.abuseipdb.com/account/api
-phish-triage enrich tests/fixtures/phish_sample.eml --output report.md
-
-# run the test suite
-pytest -q
+python3 -m venv .venv
+source .venv/bin/activate
+python -m pip install --upgrade pip
+python -m pip install -e .
 ```
 
-## Sample tester (web UI)
+For local development and the web interface:
 
 ```bash
-pip install -e ".[web]"
-python -m phish_triage.web
-# open http://127.0.0.1:5050
+python -m pip install -e ".[dev,web]"
 ```
 
-A single-file Flask app under `src/phish_triage/web/` that lets you upload
-any `.eml` or click one of the bundled samples and see the parsed signals,
-IOCs, verdict, and rationale rendered as cards.
+On Windows PowerShell, activate the virtual environment with `.venv\Scripts\Activate.ps1`.
 
-> ⚠️  The web demo runs the parser + scorer **locally only** — VirusTotal and
-> AbuseIPDB are intentionally skipped so the page is safe to share without
-> exposing API keys or burning quota.  Add keys back via the CLI
-> (`phish-triage enrich …`) when you want the full pipeline.
+## Usage
 
-## Sample output
+### Parse an email
+
+JSON is the default output format:
+
+```bash
+phish-triage parse message.eml
+phish-triage parse message.eml --json
+```
+
+Render a human-readable summary or write it to a file:
+
+```bash
+phish-triage parse message.eml --markdown
+phish-triage parse message.eml --markdown --output summary.md
+```
+
+### Enrich indicators and score the message
+
+```bash
+phish-triage enrich message.eml
+phish-triage enrich message.eml --output report.md
+phish-triage enrich message.eml --json --output report.json
+```
+
+Enrichment uses `.cache/` by default. Select another directory with `--cache-dir PATH`, or use `--no-cache` to disable cache reads and writes for that run. Missing API keys cause the corresponding provider to be skipped; scoring still uses parser signals and any available provider.
+
+### Run the local web interface
+
+Install the `web` extra, then start the Flask application:
+
+```bash
+python -m pip install -e ".[web]"
+python -m phish_triage.web
+```
+
+Open <http://127.0.0.1:5050>. The server binds to `127.0.0.1`, accepts `.eml` uploads up to 1 MB, exposes `GET /healthz`, and includes the sample messages under `tests/fixtures/` when run from a source checkout.
+
+The web interface calls the same enrichment code as the CLI with caching disabled. If `VT_API_KEY` or `ABUSEIPDB_API_KEY` is present in the server environment, submitting a message can make live requests to that provider. Leave both variables unset to run the interface using parser signals only.
+
+### Use the bundled samples
+
+The repository contains inert benign and phishing fixtures. Regenerate them and inspect the phishing sample with:
+
+```bash
+python -m tests.make_fixtures
+phish-triage parse tests/fixtures/phish_sample.eml --markdown
+phish-triage enrich tests/fixtures/phish_sample.eml --no-cache
+```
+
+The fixtures contain simulated indicators and text content, not malware.
+
+## Configuration
+
+Configuration is supplied through command-line options and environment variables; there is no application configuration file.
+
+| Name | Required | Purpose |
+|---|---:|---|
+| `VT_API_KEY` | No | Enables VirusTotal URL and attachment-hash lookups. |
+| `ABUSEIPDB_API_KEY` | No | Enables AbuseIPDB lookups for non-private dotted-quad address values in the delivery chain. |
+| `--cache-dir PATH` | No | Changes the enrichment cache directory from `.cache/`. |
+| `--no-cache` | No | Disables enrichment cache reads and writes. |
+
+Do not commit API keys. Provider requests are read-only lookups, but the indicators being queried are disclosed to the selected provider.
+
+## Detection content
+
+The [`detections/`](detections/) directory contains eight SPL queries and eight Sigma rules. They assume normalized secure-email-gateway fields and require environment-specific review, field mapping, allowlists, and validation before deployment. R02 requires sender-domain history, and R05 requires VirusTotal lookup data.
+
+See [Detection content](detections/README.md) for field requirements, rule mappings, and tuning guidance.
+
+## Development
+
+Install the development dependencies and run the test suite:
+
+```bash
+python -m pip install -e ".[dev,web]"
+pytest
+```
+
+The test suite covers parsing, enrichment, caching, scoring, report rendering, and the Flask routes. Network access is mocked in enrichment tests; API keys are not required.
+
+## Project structure
 
 ```text
-$ phish-triage enrich tests/fixtures/phish_sample.eml | head -25
-# Phishing triage report — Urgent: PayPal account suspended
-
-**Source:** `tests/fixtures/phish_sample.eml`
-
-## Summary
-
-- **Verdict:** `MALICIOUS`
-- **Score:** 100 / 100
-- **From:** PayPal Security <security-team@paypa1-verify.top>
-- **Reply-To:** verify@evil-collector.country
-- **Subject:** Urgent: PayPal account suspended
-
-## IOC table
-
-| Type | Value                                            | Notes                |
-|------|--------------------------------------------------|----------------------|
-| url  | `hxxp://bit[.]ly/paypal-verify-now`              | host `bit.ly`        |
-| url  | `hxxps://paypa1-secure-login[.]zip/account`      | host `paypa1...zip`  |
-| file | `invoice.html`                                   | sha256 `1fec...f873` |
-| ip   | `198.51.100.42`                                  | from Received chain  |
+src/phish_triage/
+  cli.py               Command-line interface
+  parser.py            Email parsing and Markdown summary rendering
+  enrich.py            Provider clients, cache, scoring, and reports
+  web/                 Local Flask interface
+tests/                 Test suite, fixtures, and fixture generator
+detections/spl/        Splunk SPL queries
+detections/sigma/      Sigma rules
+docs/                  Design rationale and implementation walkthroughs
 ```
 
-## Stage breakdown
+## Documentation
 
-### Stage 1 — Parser (pure stdlib)
-
-* Uses `email.policy.default` for RFC 5322 parsing — handles MIME, RFC 2047
-  header encoding, quoted-printable / base64 transfer encoding.
-* `Authentication-Results` parsed mechanism-by-mechanism; the strongest
-  signal wins (a later `none` won't overwrite an earlier `fail`).
-* `From` vs `Reply-To` mismatch and display-name brand spoofing detection.
-* `Received` chain ordered origin → recipient with **RFC 1918-only** privacy
-  detection (RFC 5737 documentation ranges, which test fixtures use as
-  stand-in public IPs, are treated as public — see the comment in
-  `_is_private`).
-* All URLs from every `text/*` body part, deduplicated and defanged
-  (`hxxp://`, `[.]`).
-* Attachments yield filename, content-type, size, and MD5/SHA1/SHA256.
-* Output: JSON or a markdown analyst summary.
-
-[Read the Stage 1 walkthrough →](docs/stage1-parsing-walkthrough.md)
-
-### Stage 2 — Enrichment (`requests` only)
-
-* VirusTotal v3 GET endpoints for URLs (`/urls/{base64id}`) and files
-  (`/files/{sha256}`), bounded by a 4 req/min RateLimiter that matches the
-  free-tier quota.
-* AbuseIPDB `/check` for every **public** Received-chain hop.
-* Missing API key? The source is skipped, a line is added to the
-  `Notes` section of the report, scoring continues with whatever's left.
-* Responses cached under `.cache/` keyed by `(source, IOC)` so re-runs don't
-  burn quota.
-* Verdict scoring: signal weights + VT detections + AbuseIPDB confidence
-  bounded 0-100, mapped to benign / suspicious / malicious at 40 / 70.
-
-[Read the Stage 2 walkthrough →](docs/stage2-enrichment-walkthrough.md)
-
-### Stage 3 — Detections (Splunk SPL + Sigma)
-
-* Eight rules in both SPL and Sigma covering every category of signal the
-  parser surfaces.
-* `detections/README.md` carries the rule ↔ parser signal ↔ MITRE ATT&CK
-  table.
-
-[Read the detection-engineering write-up →](docs/stage3-detection-engineering.md)
-
-## MITRE ATT&CK mapping
-
-| Rule | Technique(s) |
-|------|--------------|
-| R01 SPF fail + From/Reply-To mismatch | [T1566.001](https://attack.mitre.org/techniques/T1566/001/), [T1566.002](https://attack.mitre.org/techniques/T1566/002/) |
-| R02 New sender domain + auth fail | [T1566](https://attack.mitre.org/techniques/T1566/) |
-| R03 Brand / exec display-name spoof | [T1656](https://attack.mitre.org/techniques/T1656/), [T1566.001/002](https://attack.mitre.org/techniques/T1566/) |
-| R04 URL shortener in mail | [T1566.002](https://attack.mitre.org/techniques/T1566/002/), [T1204.001](https://attack.mitre.org/techniques/T1204/001/) |
-| R05 Attachment hash → VirusTotal | [T1566.001](https://attack.mitre.org/techniques/T1566/001/) |
-| R06 Suspicious TLD link | [T1566.002](https://attack.mitre.org/techniques/T1566/002/), [T1583.001](https://attack.mitre.org/techniques/T1583/001/) |
-| R07 Base64 HTML body with form | [T1027](https://attack.mitre.org/techniques/T1027/), [T1566.001](https://attack.mitre.org/techniques/T1566/001/) |
-| R08 DMARC reject bypass | [T1566](https://attack.mitre.org/techniques/T1566/), defense_evasion |
-
-## Project layout
-
-```
-phish-triage/
-├── src/phish_triage/
-│   ├── __init__.py
-│   ├── parser.py       Stage 1 — stdlib-only parser
-│   ├── enrich.py       Stage 2 — VT + AbuseIPDB + scoring
-│   ├── cli.py          argparse front-end (phish-triage parse|enrich)
-│   └── web/            Stage 4 — single-file Flask sample tester
-│       ├── __init__.py
-│       ├── __main__.py
-│       ├── templates/{index,report}.html
-│       └── static/style.css
-├── tests/
-│   ├── fixtures/
-│   │   ├── benign.eml          regenerated from make_fixtures.py
-│   │   └── phish_sample.eml
-│   ├── make_fixtures.py        no real malware — only signal patterns
-│   ├── test_parser.py          9 cases
-│   ├── test_enrich.py          11 cases, HTTP fully mocked
-│   └── test_web.py             8 cases — Flask test client
-├── detections/
-│   ├── spl/                     R01-R08 (.spl)
-│   ├── sigma/                   R01-R08 (.yml, uuid4 ids, MITRE tags)
-│   └── README.md                signal → rule → ATT&CK mapping
-├── docs/
-│   ├── why.md                              why I built this
-│   ├── retrospective.md                    what worked, what bit me
-│   ├── stage1-parsing-walkthrough.md
-│   ├── stage2-enrichment-walkthrough.md
-│   ├── stage3-detection-engineering.md
-│   └── screenshots/                        README image assets
-└── pyproject.toml
-```
-
-## Testing
-
-```bash
-pytest -q          # 28 tests, all green, no live API calls
-```
-
-The enrichment tests use `unittest.mock.patch` against
-`phish_triage.enrich.requests.Session.get`, so the suite is **safe to run
-without API keys** and **never** burns quota.
-
-## Safety / scope
-
-* `tests/make_fixtures.py` deliberately constructs the phishing fixture from
-  inert text — there is **no real malware** in this repo.
-* The toolkit only performs **read-only** lookups against public APIs.
-* No `eval` / `exec` / `shell=True` anywhere; no hardcoded credentials.
+- [Parsing walkthrough](docs/stage1-parsing-walkthrough.md)
+- [Enrichment walkthrough](docs/stage2-enrichment-walkthrough.md)
+- [Detection engineering notes](docs/stage3-detection-engineering.md)
+- [Project rationale](docs/why.md)
+- [Engineering retrospective](docs/retrospective.md)
 
 ## License
 
-MIT — see [LICENSE](LICENSE).
+Licensed under the [MIT License](LICENSE).

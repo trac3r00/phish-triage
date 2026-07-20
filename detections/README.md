@@ -1,37 +1,54 @@
-# Detections — Splunk SPL + Sigma
+# Detection content
 
-Eight detection rules derived from the signals the
-[`phish-triage`](../README.md) parser surfaces. Each rule ships in two formats:
+This directory contains eight example detection rules in two formats:
 
-* **SPL** (`spl/`) — Splunk queries assuming a CIM-shaped `index=email`
-  populated by a secure-email-gateway adapter (Proofpoint / Mimecast / O365 /
-  Cisco ESA / etc.).  Field names follow the
-  [Splunk Common Information Model — Email](https://docs.splunk.com/Documentation/CIM/latest/User/Email)
-  data model where possible.
-* **Sigma** (`sigma/`) — YAML rules with `logsource.product: email`,
-  `category: email-gateway`.  Convert with `sigma convert` to deploy on your
-  SIEM of choice (Elastic, Sentinel, Chronicle, …).
+- `spl/`: Splunk SPL queries for a normalized `index=email` dataset.
+- `sigma/`: Sigma YAML rules with `product: email` and `category: email-gateway` logsources.
 
-## Rule → parser signal → MITRE ATT&CK
+These files are deployment templates, not rules executed by `phish-triage`. Secure email gateways use different schemas, so review the required fields, replace placeholders or unsupported modifiers, and validate each rule against representative events before enabling alerts.
 
-| Rule | Title | Parser signal(s) | MITRE ATT&CK |
-|------|-------|------------------|--------------|
-| R01 | SPF fail + From / Reply-To mismatch | `spf_fail`, `from_reply_to_mismatch` | [T1566.001](https://attack.mitre.org/techniques/T1566/001/), [T1566.002](https://attack.mitre.org/techniques/T1566/002/) |
-| R02 | Newly observed sender domain with auth fail | `spf_fail` ∨ `dkim_fail` ∨ `dmarc_fail` + novel domain | [T1566](https://attack.mitre.org/techniques/T1566/) |
-| R03 | Brand / executive display-name impersonation | `display_name_spoof` | [T1656](https://attack.mitre.org/techniques/T1656/), [T1566.001/002](https://attack.mitre.org/techniques/T1566/) |
-| R04 | URL shortener in inbound email | `url_shortener` | [T1566.002](https://attack.mitre.org/techniques/T1566/002/), [T1204.001](https://attack.mitre.org/techniques/T1204/001/) |
-| R05 | Attachment hash matched VirusTotal | `has_attachment` + VT enrichment | [T1566.001](https://attack.mitre.org/techniques/T1566/001/) |
-| R06 | Suspicious / disposable TLD link | `suspicious_tld` | [T1566.002](https://attack.mitre.org/techniques/T1566/002/), [T1583.001](https://attack.mitre.org/techniques/T1583/001/) |
-| R07 | Base64-encoded HTML body containing a form | URL extraction + body decode | [T1027](https://attack.mitre.org/techniques/T1027/), [T1566.001](https://attack.mitre.org/techniques/T1566/001/) |
-| R08 | DMARC reject / quarantine policy bypass | `dmarc_fail` | [T1566](https://attack.mitre.org/techniques/T1566/), defense_evasion |
+## Rule mapping
 
-## Tuning notes
+| Rule | Detection | Related parser or enrichment evidence | ATT&CK references |
+|---|---|---|---|
+| R01 | SPF failure with From/Reply-To domain mismatch | `spf_fail`, `from_reply_to_mismatch` | T1566.001, T1566.002 |
+| R02 | Newly observed sender domain with an authentication failure | `spf_fail`, `dkim_fail`, or `dmarc_fail`, plus external sender history | T1566 |
+| R03 | Brand or executive display-name impersonation | `display_name_spoof` | T1566.001, T1566.002, T1656 |
+| R04 | URL shortener in inbound email | `url_shortener` | T1566.002, T1204.001 |
+| R05 | Attachment SHA-256 with a VirusTotal malicious result | `has_attachment` plus VirusTotal enrichment | T1566.001 |
+| R06 | Link using a selected high-risk TLD | `suspicious_tld` | T1566.002, T1583.001 |
+| R07 | Base64-encoded HTML body containing a form | Decoded MIME content; this is not a named parser signal | T1027, T1566.001 |
+| R08 | Failed DMARC message delivered despite a reject or quarantine policy | `dmarc_fail` plus gateway policy and disposition fields | T1566 |
 
-* These rules favour **recall** for an inbox where the analyst will manually
-  triage hits.  Tighten with allowlists once a steady-state hit rate is
-  established (typical: ≤ 5 events / day for R02 / R03 / R08, more for R01 / R04).
-* All Sigma rules pin `logsource.product: email`.  If your gateway product
-  ships its own Sigma backend (e.g. Proofpoint), swap that in.
-* R02 and R05 require auxiliary state (rolling sender-domain baseline; VT
-  lookup table `ti_vt`).  The SPL shows one common pattern; adjust to match
-  whatever lookup/baseline plumbing your environment already has.
+ATT&CK mappings are hypotheses for detection categorization and should be reviewed against local use cases. Links and tags are included in the individual Sigma files.
+
+## Required data
+
+The SPL queries expect `index=email` and `sourcetype=email:*`. The rules collectively reference these normalized fields:
+
+| Area | Fields |
+|---|---|
+| Message identity | `sender`, `recipient`, `from_addr`, `reply_to_addr`, `from_display`, `from_domain` |
+| Authentication | `authentication_results`, `dmarc_policy`, `final_disposition` |
+| URLs and body | `extracted_url`, `url_host`, `url_tld`, `mime_encoding`, `content_type`, `body_decoded` |
+| Attachments | `attachment_filename`, `attachment_sha256`, `vt_malicious` |
+
+Additional dependencies:
+
+- R02 needs a 30-day sender-domain baseline.
+- R03 needs an environment-specific mapping from brand names to authorized domains.
+- R05 expects a Splunk lookup named `ti_vt` or equivalent enrichment.
+- R07 requires decoded message-body content, which may be unavailable or restricted for privacy reasons.
+
+The Sigma rules use generalized field names and include `expand`, `gte`, and placeholder-style values that may not be supported by every Sigma backend. Treat successful YAML parsing as insufficient; validate the converted query with the selected backend.
+
+## Deployment workflow
+
+1. Map each required field to the email gateway or SIEM schema.
+2. Replace lookup names, brand-domain mappings, and other environment-specific values.
+3. Validate the Sigma schema and backend conversion, or parse the SPL in a development search environment.
+4. Replay known-positive and known-benign events.
+5. Run in a non-notifying mode, measure false positives, and add narrowly scoped allowlists.
+6. Enable alerting only after the query and operational response have been reviewed.
+
+Common false positives include mailing-list Reply-To rewriting, legitimate first-time vendors, transactional email services, and marketing links that use URL shorteners. The individual rules contain more specific notes.

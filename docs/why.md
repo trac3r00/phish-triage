@@ -1,121 +1,55 @@
-# Why I built this
+# Project rationale
 
-> *Portfolio note — the technical story behind `phish-triage`, written for
-> hiring managers in SOC analyst, threat detection, and SIEM engineering
-> roles.*
+Phishing investigations often involve three related but distinct tasks: extracting evidence from a message, checking indicators against external sources, and translating recurring patterns into SIEM detections. `phish-triage` keeps those concerns separate so each part can be reviewed and used independently.
 
-## The pitch
+## Design goals
 
-There is a lot of "phishing analyser" code on the internet.  Most of it
-falls into one of two buckets:
+### Deterministic local parsing
 
-1. A **single Python script** that grabs the headers out of an `.eml`,
-   prints them, and stops.  Useful for a homework assignment, useless on a
-   real triage queue.
-2. A **monolithic platform** that wants to be your SOAR.  Useful at
-   enterprise scale, way too much surface area to read in a job interview.
+`src/phish_triage/parser.py` uses the Python standard library to parse one `.eml` file. It extracts authentication results, sender inconsistencies, delivery-chain details, URLs, and attachment hashes without network access.
 
-`phish-triage` is deliberately neither.  It's a **small, opinionated CLI** —
-the kind of tool you'd actually build during an on-call shift when you got
-tired of repeating yourself.  Three stages, each smaller than the previous:
+The parser retains both structured values and analyst-oriented signals. URLs are kept in their original form for programmatic enrichment and separately defanged for display.
 
-* **Stage 1** — `parser.py`, pure stdlib.  Reads an `.eml`, extracts every
-  signal a level-1 analyst cares about, defangs URLs, hashes attachments.
-* **Stage 2** — `enrich.py`, adds `requests`.  Talks to VirusTotal +
-  AbuseIPDB, applies a weighted score, produces a markdown report a
-  human can paste into a ticket.
-* **Stage 3** — `detections/`, no code.  Eight detection rules in **both**
-  Splunk SPL and Sigma, mapped to MITRE ATT&CK.
+### Optional, explainable enrichment
 
-That ordering matters.  Stage 1 is the part you'd ship to a colleague on a
-USB stick — it has zero dependencies.  Stage 2 is what you'd run on your
-own laptop with API keys.  Stage 3 is what you'd hand to detection
-engineering.  Each layer is independently useful and independently
-deletable.
+`src/phish_triage/enrich.py` adds read-only VirusTotal and AbuseIPDB lookups. Provider credentials are optional, responses can be cached, and a missing provider does not prevent parser-based scoring.
 
-## What I wanted to demonstrate
+The score is a bounded sum of documented weights. Every contribution produces a rationale entry, allowing an analyst to trace a verdict back to the evidence. The score is a prioritization heuristic, not a statistical confidence value.
 
-Looking at SOC analyst / detection engineer job postings, the same five
-themes keep showing up:
+### Portable detection examples
 
-| Posting wants… | Where it shows up here |
-|----------------|------------------------|
-| **Email header analysis** | Stage 1: SPF/DKIM/DMARC parsing, Reply-To & display-name spoofing, Received-chain anomaly detection. |
-| **Threat-intel pivoting** | Stage 2: VirusTotal v3 + AbuseIPDB GET endpoints, rate limiter calibrated to the free tier, cache to keep quota usage honest. |
-| **Detection engineering** | Stage 3: eight rules, each in SPL **and** Sigma, every rule mapped to MITRE technique IDs. |
-| **Clean code + tests** | Type hints everywhere, `from __future__ import annotations`, 20 pytest tests with HTTP fully mocked. |
-| **Communication** | A README with an ASCII architecture diagram, three per-stage walkthroughs that explain *why* a signal matters, a sample-tester web UI, and this write-up. |
+`detections/` contains the same eight detection concepts in SPL and Sigma formats. These are independent templates for teams that have secure-email-gateway telemetry. They document field assumptions and external dependencies rather than claiming direct portability across products.
 
-Every choice in the repo is deliberate evidence for one of those rows.
+## Why the parser avoids external dependencies
 
-## A small thing I'm proud of
+The standard library's `email` package already provides MIME decoding, transfer-encoding handling, address parsing, and RFC 2047 header decoding. Keeping this stage dependency-free makes its behavior easier to audit and prevents threat-intelligence availability from affecting message extraction.
 
-While building Stage 1 I hit a fun bug that's worth highlighting because
-it's exactly the kind of thing detection engineers get burned by in
-production.
+The complete installed package still depends on `requests` because enrichment is part of the CLI. Flask is isolated in the optional `web` dependency.
 
-The simulated phish fixture uses RFC 5737 documentation IP ranges
-(`192.0.2/24`, `198.51.100/24`, `203.0.113/24`) to represent public
-internet hosts — those are the ranges IANA reserved for examples and
-manuals.  When I first wired up the `received_private_to_public` anomaly
-detector, **every** hop came back as private and the signal never fired.
+## Address classification decision
 
-The reason: Python's `ipaddress.IPv4Address.is_private` flags those RFC
-5737 ranges as private alongside RFC 1918.  Defensible in the abstract —
-they're "not routable" in some sense — but it means trusting the stdlib
-would have masked the exact pattern (internal bot leaking out to a public
-relay) the rule was meant to catch.
+The phishing fixture uses RFC 5737 documentation networks as stand-ins for public infrastructure. Python's `ipaddress` classification treats those reserved ranges as non-global, and its `is_private` behavior is broader than the parser needs.
 
-The fix is six lines and a comment explaining why:
+The project therefore defines internal hops narrowly as RFC 1918 IPv4, IPv6 unique-local, loopback, and link-local addresses. This allows documentation addresses in fixtures to exercise the private-to-public transition heuristic. It is a fixture-oriented threat-model decision, not a claim that documentation ranges are publicly routable.
 
-```python
-_RFC1918_NETS = (
-    ipaddress.ip_network("10.0.0.0/8"),
-    ipaddress.ip_network("172.16.0.0/12"),
-    ipaddress.ip_network("192.168.0.0/16"),
-    ipaddress.ip_network("fc00::/7"),
-)
+## Deliberate scope
 
-def _is_private(ip: str | None) -> bool:
-    # We intentionally do NOT use ipaddress.IPv4Address.is_private here;
-    # it lumps RFC 5737 documentation ranges into "private", which would
-    # mask the very anomaly we're trying to detect.
-    ...
-```
+The project does not attempt to provide:
 
-The lesson: **stdlib defaults are written for a general audience.** A
-detection engineer's job is partly to know when the general answer is the
-wrong answer for the threat model — and to leave a comment so the next
-reader doesn't "fix" the divergence.
+- mailbox or mail-server integration;
+- bulk or streaming message processing;
+- attachment execution or sandboxing;
+- Office document or archive inspection;
+- automatic deployment of SIEM rules;
+- machine-learning classification;
+- production authentication, authorization, or hosting for the web interface.
 
-## Scope I deliberately did not chase
+The local web interface is intended for source-checkout evaluation. It binds to `127.0.0.1`, has no authentication, and should not be exposed as a public service without a separate deployment and security review.
 
-To keep the repo readable in 20 minutes:
+## Suggested reading order
 
-* **No ML.**  A weighted scorer is good enough, deterministic, and easy
-  to explain.  A model would be cooler but harder to defend.
-* **No DB.**  File-backed JSON cache is enough for a per-laptop tool.
-* **No async.**  4 VT requests per minute fit comfortably inside a
-  blocking session; complexity isn't earned here.
-* **No browser sandboxing.**  Out of scope and ethically risky for a
-  portfolio repo.
-* **No real malware in fixtures.**  Everything in `tests/fixtures/` is
-  generated by `tests/make_fixtures.py` from inert text.  This is a
-  non-negotiable for a public security-tooling repo.
-
-## What to read first
-
-If you have five minutes:
-
-1. The [README](../README.md) for the pitch and the architecture diagram.
-2. The verdict screenshot below — `phish_sample.eml` lands MALICIOUS at
-   100/100 with zero API calls.
-3. [`src/phish_triage/parser.py`](../src/phish_triage/parser.py) for the
-   Stage 1 source — about 350 lines, no dependencies.
-
-If you have twenty:
-
-4. The three per-stage walkthroughs in this `docs/` folder.
-5. [`detections/README.md`](../detections/README.md) for the signal ↔
-   rule ↔ ATT&CK table.
-6. The [retrospective](retrospective.md) for what I'd change next.
+1. [README](../README.md) for installation and usage.
+2. [Parsing walkthrough](stage1-parsing-walkthrough.md) for extracted fields and heuristics.
+3. [Enrichment walkthrough](stage2-enrichment-walkthrough.md) for provider behavior and score weights.
+4. [Detection engineering notes](stage3-detection-engineering.md) for deployment assumptions.
+5. [Engineering retrospective](retrospective.md) for known limitations and future considerations.
