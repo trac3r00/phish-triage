@@ -1,162 +1,77 @@
-# Retrospective — what worked, what bit me, what I'd change
+# Engineering retrospective
 
-> A post-mortem written after the first usable cut of `phish-triage`.
+This document records the implementation choices, limitations, and follow-up opportunities identified in the current `0.1.0` codebase. It is descriptive, not a roadmap or release commitment.
 
-## What worked
+## Effective choices
 
-### Stage-gating the dependency footprint
+### Separate parsing from enrichment
 
-Forcing Stage 1 to be **pure stdlib** turned out to be the best constraint
-I gave myself.  It meant the parser had to be small, the data flow had to
-be explicit, and there was nowhere to hide bad design behind a library.
-When Stage 2 finally got to use `requests`, the boundary between
-"deterministic parsing" and "fallible enrichment" stayed crisp —
-which made the test seams obvious (mock `requests.Session.get`, not the
-whole parser).
+The parser produces a `ParsedEmail` without network access. Enrichment accepts that object and returns a separate `EnrichmentResult`. This boundary keeps message extraction deterministic and lets tests replace provider calls without mocking the parser.
 
-If I'd allowed `tldextract` / `email-validator` / `dnspython` from day
-one, the parser would be 1500 lines instead of 350, and every test would
-need a network shim.
+### Use dataclasses for structured output
 
-### Dataclasses as the wire format
+The parser and enrichment results are dataclasses. The CLI converts them with `dataclasses.asdict()`, tests assert on typed attributes, and the Flask templates consume the same objects. This keeps the command-line and web paths aligned without a separate serialization model.
 
-`ParsedEmail` and `EnrichmentResult` are plain `@dataclass`es with
-`asdict()` for JSON serialisation.  That meant:
+### Build rationale during scoring
 
-* The CLI's `--json` mode is one line (`json.dumps(parsed.to_dict())`).
-* The web UI's Jinja templates can dot-access the same objects.
-* Tests can assert on attribute values instead of poking dictionaries.
-* Adding a field is a one-line change in three places (dataclass +
-  scorer + render), with no schema migration anywhere.
+The scorer appends a rationale entry at the same point where it adds each weight. This reduces the chance that displayed explanations diverge from the score calculation and gives analysts evidence to review rather than only a verdict label.
 
-Pydantic would have been overkill; manual dicts would have been a mess.
+### Keep test indicators inert
 
-### Verdict rationale as a list of strings
+`tests/make_fixtures.py` generates the sample `.eml` files from text and a harmless HTML attachment. The test suite can exercise suspicious patterns without storing or executing malware.
 
-Every weight that fires also pushes a sentence onto `result.rationale`:
+## Known limitations
 
-```
-- signal `display_name_spoof` (+20)
-- VirusTotal flagged URL `https://...` as malicious (3 engines) (+30)
-```
+### Header parsing is heuristic
 
-This sounds trivial.  In practice it's the **most important** UX choice
-in the whole codebase.  A SOC analyst reading a ticket doesn't want to
-trust a black-box score — they want to know which evidence got us there
-so they can pull the thread.  Building the rationale list incrementally
-inside the scorer (instead of "explaining" the score after the fact) also
-means the explanation can never drift out of sync with the math.
+The `Authentication-Results` and `Received` parsers use regular expressions rather than complete header grammars. Complex vendor-specific headers may be parsed partially or incorrectly. Results should support, not replace, manual header analysis.
 
-### "Sample tester" web page on a Friday afternoon
+### Sender spoof checks use substring rules
 
-Adding `src/phish_triage/web/` was originally a "maybe later" item.  I
-ended up doing it because the screenshots for the README needed something
-to show — and the moment I had it, the tool felt twice as legible.  A
-recruiter who can click `phish_sample.eml` and see MALICIOUS / 100 in red
-will understand the value of the toolkit in **3 seconds**, where the same
-person reading the source would need 5 minutes minimum.
+Display-name spoofing is based on a fixed list of brand terms and substring presence in the address domain. It does not validate registrable domains, ownership, lookalike characters, or organizational allowlists.
 
-Cost: one Flask file, two Jinja templates, one CSS file.  Total ~600
-lines.  Worth every one.
+### URL extraction is intentionally narrow
 
-## What bit me
+The parser recognizes explicit HTTP and HTTPS URLs in decoded `text/*` parts. It does not normalize redirect chains, parse every HTML edge case, extract bare domains, or use the Public Suffix List.
 
-### `ipaddress.is_private` includes RFC 5737
+### Enrichment is synchronous
 
-Covered in detail in [`why.md`](why.md#a-small-thing-im-proud-of), but
-the headline is: trusting `is_private` would have made my own test
-fixture silently fail.  Worth re-stating because it's the exact category
-of bug detection engineers see in production — a "sensible" library
-default disagrees with your threat model, and the only way you find out
-is by writing a fixture that explicitly probes the disagreement.
+Provider requests run sequentially and are subject to code-defined per-minute limits. Messages with many URLs or attachments can take several minutes. Cache state is local JSON and has no expiration or concurrent-access coordination.
 
-Lesson banked: **when you write a detector, always write a fixture that
-should trip it and watch it trip.**  If the fixture doesn't fire,
-something between the parser and your mental model is wrong.
+### The web interface is local-development software
 
-### The Sigma `date:` schema
+The Flask server binds to loopback and has no authentication. Uploads are limited to 1 MB, but temporary files are named from Python's process-local hash and written under `/tmp`. The interface should not be exposed publicly without deployment hardening.
 
-Initial commits shipped `date: 2026/06/16`.  The Sigma JSON Schema (the
-one VS Code uses for the editor lint) only accepts `YYYY-MM-DD`.  Both
-formats parse with PyYAML, so my "valid YAML?" check passed — but
-`sigma check` would have failed in CI, and any analyst importing the
-rule into a SIEM with strict Sigma validation would have gotten a
-schema error.
+The web path calls `enrich_eml()` with caching disabled. Contrary to an earlier implementation comment, it does not force provider keys to `None`; API keys inherited from the environment enable live requests.
 
-The fix was a one-line sed across eight files.  The lesson is: **valid
-YAML ≠ valid Sigma.**  Use the actual Sigma validator (or the JSON
-Schema) before declaring rules ready.
+### Detection rules require adaptation
 
-### Sandboxing surprises during install
+The SPL and Sigma files assume normalized gateway fields and include local placeholders, lookups, and backend-sensitive modifiers. They have no repository CI workflow or declared validator dependency. YAML syntax alone is not sufficient validation.
 
-I'm building this in a sandboxed agent environment where the standard
-"install class" commands (`uv pip install`, `pip install -e .`) are
-gated.  I had to fall back to bootstrapping pip via `get-pip.py` inside
-the venv, then `pip install` worked normally.  Forty seconds of
-confusion, but a useful reminder for anyone who works in restrictive
-build environments: **know how to bootstrap your toolchain from
-scratch.**
+## Issues encountered
 
-### Jinja's `zip` filter
+### Reserved-address classification
 
-The report template originally had `{% for url, defanged in (parsed.urls,
-parsed.urls_defanged) | zip %}{% endfor %}`.  Jinja2 doesn't ship a `zip`
-filter by default — Flask returned a `TemplateAssertionError`.  Easy
-fix (index-based loop), but a reminder that **template engines are not
-Python**, and copy-pasting "Pythonic" patterns into a template will burn
-you.
+The fixtures use RFC 5737 ranges to represent public hops. A broad standard-library private-address check would classify those reserved examples in a way that prevents the intended test transition. The parser uses an explicit internal-address definition instead. The rationale is documented in [Project rationale](why.md#address-classification-decision).
 
-## What I'd change next
+### Template-language behavior
 
-In rough priority order:
+Jinja does not expose every Python built-in as a template filter. The current report template uses index-based access for parallel URL lists rather than relying on an unavailable `zip` filter.
 
-1. **Pivot the parser onto a streaming interface.**  Right now
-   `parse_eml(path)` takes a filesystem path.  Refactoring to
-   `parse_eml(fp: BinaryIO)` would let the web UI skip the temp-file
-   shuffle, and make it easier to plug into a SOAR's message queue.
+### Schema validation versus YAML validation
 
-2. **A `phish-triage batch <dir>` subcommand.**  Walks a directory of
-   `.eml`, parses + enriches each, writes a JSONL of verdicts.  This
-   is the shape a SOC would actually want for daily-digest reports.
+A file can be valid YAML while violating the Sigma schema or failing conversion for a particular backend. Detection validation therefore needs the actual target tooling and representative events.
 
-3. **Sigma backend coverage in CI.**  Use the
-   [`sigma-cli`](https://github.com/SigmaHQ/sigma-cli) tool to
-   round-trip every YAML rule into Splunk + Elastic + Sentinel, and
-   fail the build on any conversion error.
+## Potential follow-up work
 
-4. **Auto-extract macros / OLE relationships from Office attachments.**
-   This is genuinely useful and not that much code with `oletools`, but
-   it would push Stage 2 past the "requests only" budget — which is why
-   I left it out of the first cut.
+Future work should be prioritized by an actual deployment need. Candidate improvements include:
 
-5. **Per-rule unit fixtures.**  Right now the test suite confirms the
-   parser produces the right signals.  Adding one
-   should-fire/should-not-fire fixture pair per detection rule would
-   raise confidence that the rules don't drift away from the parser
-   over time.
+1. accept binary streams in addition to filesystem paths, removing the web interface's temporary-file step;
+2. add an explicitly designed batch-processing command;
+3. add cache expiration and clearer cache-control semantics;
+4. validate Sigma rules against selected backends in CI;
+5. create positive and negative fixtures for each detection rule;
+6. add structured domain parsing and environment-specific brand mappings;
+7. document and secure a production deployment model only if public hosting becomes a requirement.
 
-6. **Replace the SHA-1 cache key with SHA-256.**  Functionally
-   equivalent for cache busting, but better optics on a security repo.
-
-## What I'd keep exactly the same
-
-* The three-stage split.
-* The "no real malware in fixtures, ever" rule.
-* The rationale-as-list-of-strings UX.
-* Pure stdlib for Stage 1.
-* The web demo being intentionally **API-key-free** (no risk of
-  exposing a key by accident if the demo is ever hosted publicly).
-
-## Time accounting
-
-For honest disclosure: this repo went from `git init` to "every stage
-shipped + tests green + four-screenshot README + this retrospective" in
-**one focused build session**.  The fact that it's possible at all is
-because the constraints (stdlib first, dataclasses everywhere, no
-"clever" abstractions) keep each layer small enough to hold in your
-head while you write the next one.
-
-That is the same discipline I'd bring to a real SOC tooling role.  Most
-of the value of internal tooling is *being maintainable next quarter
-when the person who wrote it is on vacation*.  Small surface area, clear
-seams, real tests — that's the bar.
+Each item changes behavior or operational scope and should be designed and tested separately.
